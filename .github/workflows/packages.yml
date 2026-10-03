@@ -1,0 +1,63 @@
+name: Plugin packages
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Validate Claude plugin
+        run: npx --yes @anthropic-ai/claude-code@2.1.288 plugin validate .
+      - name: Install schema validation dependencies
+        run: python -m pip install -r requirements-ci.txt
+      - name: Validate portable schemas and shared wiring
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+          from pathlib import Path
+
+          import jsonschema
+          import yaml
+
+          root = Path('.')
+          for filename in ['plugin.json', 'mcp.json']:
+              data = json.loads((root / filename).read_text())
+              with urllib.request.urlopen(data['$schema'], timeout=30) as response:
+                  schema = json.load(response)
+              jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(data)
+          portable = json.loads((root / 'plugin.json').read_text())
+          claude = json.loads((root / '.claude-plugin/plugin.json').read_text())
+          for field in ['name', 'version', 'description', 'author', 'homepage', 'repository', 'license', 'keywords']:
+              assert portable[field] == claude[field], f'Manifests disagree on {field}'
+          endpoint = 'https://mcp.nibomo.com/mcp'
+          for filename in ['mcp.json', '.mcp.json']:
+              servers = json.loads((root / filename).read_text())['mcpServers']
+              assert list(servers) == ['nibomo'], f'Unexpected connector in {filename}'
+              assert servers['nibomo']['url'] == endpoint, f'Wrong endpoint in {filename}'
+          for skill in (root / 'skills').iterdir():
+              metadata = yaml.safe_load((skill / 'agents/openai.yaml').read_text())
+              dependency = metadata['dependencies']['tools']
+              assert len(dependency) == 1 and dependency[0]['url'] == endpoint, f'Wrong dependency in {skill}'
+              assert dependency[0]['value'] == 'nibomo' and dependency[0]['transport'] == 'streamable_http', f'Wrong transport in {skill}'
+          print('Portable schemas, manifest identities, and shared MCP wiring passed.')
+          PY
+      - name: Build both installable archives
+        run: python scripts/package_plugins.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nibomo-plugin-packages
+          path: dist/*.zip
+          if-no-files-found: error

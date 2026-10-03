@@ -1,0 +1,48 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nibomo",
+  "version": "1.0.0",
+  "description": "Turn notes into clear flashcards, study due cards one question at a time, and improve your collection with Nibomo.",
+  "author": {
+    "name": "SAMO DANNI EOOD",
+    "email": "kirill@kirill-markin.com",
+    "url": "https://nibomo.com"
+  },
+  "homepage": "https://nibomo.com",
+  "license": "MIT",
+  "keywords": [
+    "flashcards",
+    "study",
+    "education",
+    "spaced-repetition"
+  ],
+  "repository": "https://github.com/kirill-markin/nibomo-plugins",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Nibomo",
+        "shortDescription": "Create, study, improve cards",
+        "longDescription": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included.",
+        "developerName": "SAMO DANNI EOOD",
+        "category": "Productivity",
+        "capabilities": [
+          "Create flashcards",
+          "Study due cards",
+          "Improve cards and saved decks"
+        ],
+        "websiteURL": "https://nibomo.com",
+        "supportURL": "https://nibomo.com/support/",
+        "privacyPolicyURL": "https://nibomo.com/privacy/",
+        "termsOfServiceURL": "https://nibomo.com/terms/",
+        "defaultPrompt": [
+          "Turn these notes into five Nibomo flashcards, checking for duplicates.",
+          "Quiz me on my due Nibomo cards, one question at a time.",
+          "Audit my Nibomo flashcards and show suggested improvements before editing."
+        ],
+        "brandColor": "#C44B2D",
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/icon.svg"
+      }
+    }
+  }
+}

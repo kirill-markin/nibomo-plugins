@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "nibomo": {
+      "type": "http",
+      "url": "https://mcp.nibomo.com/mcp"
+    }
+  }
+}

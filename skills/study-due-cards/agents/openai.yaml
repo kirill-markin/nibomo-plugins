@@ -1,0 +1,11 @@
+interface:
+  display_name: "Study Due Cards"
+  short_description: "Study due Nibomo cards one question at a time"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "nibomo"
+      description: "Read and update Nibomo cards, decks, and review progress"
+      transport: "streamable_http"
+      url: "https://mcp.nibomo.com/mcp"
