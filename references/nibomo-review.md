@@ -1,6 +1,6 @@
 # Nibomo conversational review
 
-1. Keep `workspaceId` fixed. Resolve requested existing tags or a saved `deckId`; pass either tags (any of) or deckId to `next_review_card`, never both. Omit both for all cards; an empty tags array matches nothing.
+1. Keep `workspaceId` fixed. Resolve requested existing tags or a saved `deckId`; use tags (any of) or deckId with `next_review_card`, never both. Omit both for all cards; an empty tags array matches nothing.
 2. Call `next_review_card`, show only `frontText`, and wait for the learner's original attempt. A null card means nothing is due; stop. Call `reveal_answer` with that cardId after the attempt.
 3. Compare meaning with `backText`, accepting equivalent wording and omitted optional examples. Grade the original attempt, not a corrected answer learned from reveal. Clarify ambiguous transcripts/references before grading; silence, interruptions, and skips are not failed attempts.
 4. Announce a brief reason and rating: `Again` for failed recall, wrong essential content, or needing the answer; `Hard` for correct essential recall with difficulty or self-correction before reveal; `Good` for correct essential recall; `Easy` for complete, clearly effortless recall. Use Good when effort is unclear; do not infer effort from network or transcription delays. Honor an explicit learner rating or a requested manual-rating mode. Spoken aliases need learner agreement.
