@@ -2,7 +2,7 @@
 
 ## Shared source and package formats
 
-The repository root is one Nibomo plugin with a single `skills/` directory. Keep identity fields in `plugin.json` and `.claude-plugin/plugin.json` aligned. Use the existing `https://mcp.nibomo.com/mcp` endpoint in both MCP files and skill dependencies. No second server or provider-specific copy of the skills is needed.
+The repository root is one Nibomo plugin with a single `skills/` directory. Keep identity fields in `plugin.json` and `.claude-plugin/plugin.json` aligned, including name and version in `gemini-extension.json`. All formats and skill dependencies use the existing `https://mcp.nibomo.com/mcp` endpoint. Antigravity metadata is derived during packaging. No second server or provider-specific copy of the skills is needed.
 
 | Component | Anthropic | OpenAI |
 |---|---|---|
@@ -13,7 +13,7 @@ The repository root is one Nibomo plugin with a single `skills/` directory. Keep
 | Directory submission | GitHub repository and optional folder | ZIP upload to the existing plugin |
 | Skill updates | New version on tracked branch or tag, checked before publication | New complete ZIP, checked and reviewed |
 
-The GitHub Actions **Plugin packages** workflow validates the Claude manifest with the official CLI, validates the portable manifests against their published schemas, checks shared identity and MCP wiring, and produces two ZIPs in its `nibomo-plugin-packages` artifact. Download the artifact from the successful run. CI success proves package structure, not directory approval or workflow quality.
+The GitHub Actions **Plugin packages** workflow validates the Claude manifest with the official CLI, validates the portable manifests against their published schemas, checks shared identity and MCP wiring including Gemini, and produces four ZIPs in its `nibomo-plugin-packages` artifact. It verifies archive contents against the shared source, validates Antigravity's minimal manifest against the inline documented contract, and installs and lists the Gemini package with the official CLI in a temporary profile. Download the artifact from the successful run. CI success proves package structure and Gemini installation, not directory approval, OAuth compatibility, or workflow quality.
 
 The archives include only each platform's manifest and MCP configuration plus shared skills, bundled references, assets, README, and license. Repository maintenance scripts and CI dependencies are excluded. The Claude source submission uses this repository's root and tracked branch `main`.
 
@@ -45,6 +45,28 @@ After the decision, download the existing listing's package if needed, preserve 
 
 Do not create a separate OpenAI listing just for skills that use Nibomo. The public directory is shared by ChatGPT and Codex. Test the package in both target products before requesting publication.
 
+## Google
+
+| Package | Root manifest | Remote MCP |
+|---|---|---|
+| Gemini CLI | `gemini-extension.json` | Embedded `mcpServers.nibomo.httpUrl` |
+| Antigravity | Generated `plugin.json` with only `name` and `description` | Generated `mcp_config.json` with `mcpServers.nibomo.serverUrl` |
+
+Both ZIPs contain the same shared skills, references, and assets. Gemini uses automatic OAuth discovery; Antigravity supports automatic OAuth for servers with dynamic client registration. Neither package embeds credentials. Antigravity's documented inline schema rejects additional manifest properties, so its archive must not reuse the portable root manifest.
+
+### Install and connect
+
+Use the [README installation commands](../README.md#get-started). For a Gemini archive installation, extract `nibomo-1.29.0-gemini.zip` into a `nibomo` directory and run `gemini extensions install /absolute/path/to/nibomo`. Restart the CLI, inspect `gemini extensions list`, then use `/mcp auth nibomo` and `/mcp list` inside the session.
+
+For Antigravity, inspect `/plugin list` after installing the extracted archive. In Antigravity 2.0, open Agent settings > Customizations and select **Authenticate** beside Nibomo, then follow the browser authorization prompts. A workspace-scoped alternative is to extract the archive into `.agents/plugins/nibomo/` so its `plugin.json` is directly inside that directory. See the [official plugin installation guide](https://antigravity.google/docs/plugins/) for surface-specific behavior.
+
+Google client installation, OAuth, and the real study flows below remain unverified end to end. Package checks must not be reported as successful account connection or study verification.
+
+### Public listings
+
+1. Gemini: merge the root `gemini-extension.json` onto `main` in the public `kirill-markin/nibomo-plugins` repository. In GitHub's repository **About** settings, add topic `gemini-cli-extension`. The [gallery crawler](https://geminicli.com/docs/extensions/releasing/) checks tagged public repositories daily and lists extensions that pass validation; verify the gallery entry afterward. No issue or email submission is required.
+2. Antigravity: apply through the official [Marketplace interest form](https://forms.gle/2EX5RFYPoJe1UgxR9), linked by the [Marketplace documentation](https://antigravity.google/docs/marketplace?tab=cli). Use the existing Nibomo identity, repository, website, and MCP endpoint. Interest-form submission and an installable archive do not establish Marketplace acceptance or publication.
+
 ## Real workflow verification
 
 The initial private Claude package exposed all three skills and one connected Nibomo connector. A fresh chat read the self-contained instructions, and read-only `list_workspaces` and four `get_guide` calls succeeded. The shared skills use bundled API, authoring, and review references rather than fetching behavioral guidance at runtime. Full card creation, editing, and review flows still need the following smoke checks in a synthetic workspace before publication; never describe them as passed without running them.
@@ -64,3 +86,6 @@ The initial private Claude package exposed all three skills and one connected Ni
 - [OpenAI skills and MCP dependencies](https://developers.openai.com/plugins/build/skills)
 - [OpenAI submission, review, and updates](https://developers.openai.com/plugins/deploy/submission)
 - [OpenAI adaptation of Claude plugins](https://developers.openai.com/plugins/guides/submit-claude-plugin)
+- [Gemini extension format](https://geminicli.com/docs/extensions/reference/)
+- [Gemini MCP and OAuth](https://geminicli.com/docs/tools/mcp-server/)
+- [Antigravity MCP and OAuth](https://antigravity.google/docs/mcp)

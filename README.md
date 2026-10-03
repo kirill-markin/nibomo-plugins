@@ -10,6 +10,12 @@ For Claude chat, Cowork, and Claude Code, the bundle includes Anthropic's plugin
 
 For ChatGPT and Codex, the bundle includes the portable Agent Plugins format and OpenAI metadata. Public availability requires OpenAI's separate review and publication. See OpenAI's [plugin guide](https://developers.openai.com/plugins/build/plugins). Having this source package does not mean the plugin is published in either directory.
 
+For Gemini CLI, install with `gemini extensions install https://github.com/kirill-markin/nibomo-plugins`, restart the CLI, and run `/mcp auth nibomo` to connect your account through browser OAuth. The extension uses automatic OAuth discovery and includes the same three skills.
+
+For Antigravity, download `nibomo-1.29.0-antigravity.zip` from the successful **Plugin packages** workflow artifact, extract it into a `nibomo` directory, then run `/plugin install /absolute/path/to/nibomo` in Antigravity CLI. Use the Antigravity archive because the repository root `plugin.json` targets the portable format. See [Google installation and publishing details](docs/publishing.md#google).
+
+Google packages can be installed directly; that does not confirm a public gallery or Marketplace listing. Nibomo OAuth and study workflows in Gemini CLI and Antigravity still require end-to-end verification.
+
 ## Try it
 
 - **Create flashcards:** “Turn these notes into five Nibomo cards. Check for duplicates and use the style of my existing cards.”
