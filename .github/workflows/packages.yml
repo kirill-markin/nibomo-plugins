@@ -43,6 +43,12 @@ jobs:
           for field in ['name', 'version', 'description', 'author', 'homepage', 'repository', 'license', 'keywords']:
               assert portable[field] == claude[field], f'Manifests disagree on {field}'
           endpoint = 'https://mcp.nibomo.com/mcp'
+          gemini = json.loads((root / 'gemini-extension.json').read_text())
+          assert set(gemini) == {'name', 'version', 'description', 'mcpServers'}, 'Unexpected Gemini manifest fields'
+          for field in ['name', 'version']:
+              assert gemini[field] == portable[field], f'Gemini manifest disagrees on {field}'
+          assert isinstance(gemini['description'], str) and all(value in gemini['description'] for value in ['Nibomo', 'MCP', portable['homepage']]), 'Missing Gemini description or website'
+          assert gemini['mcpServers'] == {'nibomo': {'httpUrl': endpoint}}, 'Wrong Gemini MCP configuration'
           for filename in ['mcp.json', '.mcp.json']:
               servers = json.loads((root / filename).read_text())['mcpServers']
               assert list(servers) == ['nibomo'], f'Unexpected connector in {filename}'
@@ -52,10 +58,66 @@ jobs:
               dependency = metadata['dependencies']['tools']
               assert len(dependency) == 1 and dependency[0]['url'] == endpoint, f'Wrong dependency in {skill}'
               assert dependency[0]['value'] == 'nibomo' and dependency[0]['transport'] == 'streamable_http', f'Wrong transport in {skill}'
-          print('Portable schemas, manifest identities, and shared MCP wiring passed.')
+          print('Portable schemas, manifest identities including Gemini, and shared MCP wiring passed.')
           PY
-      - name: Build both installable archives
+      - name: Build all installable archives
         run: python scripts/package_plugins.py
+      - name: Verify archive contents and Antigravity contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          import jsonschema
+
+          root = Path('.')
+          portable = json.loads((root / 'plugin.json').read_text())
+          version = portable['version']
+          shared = {Path('README.md'), Path('LICENSE')}
+          shared.update(path for folder in ['skills', 'assets', 'references'] for path in Path(folder).rglob('*') if path.is_file())
+          formats = {
+              'claude': {'.claude-plugin/plugin.json', '.mcp.json'},
+              'openai': {'plugin.json', 'mcp.json'},
+              'gemini': {'gemini-extension.json'},
+              'antigravity': {'plugin.json', 'mcp_config.json'},
+          }
+          assert set(Path('dist').glob('*.zip')) == {Path(f'dist/nibomo-{version}-{platform}.zip') for platform in formats}, 'Unexpected archive set'
+          for platform, manifests in formats.items():
+              with ZipFile(f'dist/nibomo-{version}-{platform}.zip') as archive:
+                  expected = {str(path) for path in shared} | manifests
+                  assert set(archive.namelist()) == expected and len(archive.namelist()) == len(expected), f'Wrong contents in {platform} archive'
+                  for path in shared:
+                      assert archive.read(str(path)) == path.read_bytes(), f'Changed shared file in {platform}: {path}'
+                  if platform != 'antigravity':
+                      for filename in manifests:
+                          assert archive.read(filename) == Path(filename).read_bytes(), f'Changed manifest in {platform}: {filename}'
+                  else:
+                      manifest = json.loads(archive.read('plugin.json'))
+                      # The inline official contract avoids relying on the unavailable remote schema.
+                      jsonschema.Draft202012Validator({
+                          'type': 'object',
+                          'properties': {
+                              'name': {'type': 'string', 'pattern': '^[a-zA-Z0-9-_]+$'},
+                              'description': {'type': 'string'},
+                          },
+                          'required': ['name'],
+                          'additionalProperties': False,
+                      }).validate(manifest)
+                      assert manifest == {field: portable[field] for field in ['name', 'description']}, 'Wrong Antigravity identity'
+                      assert json.loads(archive.read('mcp_config.json')) == {'mcpServers': {'nibomo': {'serverUrl': 'https://mcp.nibomo.com/mcp'}}}, 'Wrong Antigravity MCP configuration'
+          print('All four archives contain their platform manifests and unchanged shared content.')
+          PY
+      - name: Inspect Gemini package with the official CLI
+        timeout-minutes: 5
+        env:
+          GEMINI_CLI_HOME: ${{ runner.temp }}/nibomo-gemini-profile
+        run: |
+          mkdir -p "$GEMINI_CLI_HOME" "$RUNNER_TEMP/nibomo-gemini-package/nibomo"
+          unzip -q dist/nibomo-*-gemini.zip -d "$RUNNER_TEMP/nibomo-gemini-package/nibomo"
+          printf 'y\n' | npx --yes @google/gemini-cli@0.62.0 extensions install "$RUNNER_TEMP/nibomo-gemini-package/nibomo" --consent
+          npx --yes @google/gemini-cli@0.62.0 extensions list
+          cmp gemini-extension.json "$GEMINI_CLI_HOME/.gemini/extensions/nibomo/gemini-extension.json"
       - uses: actions/upload-artifact@v4
         with:
           name: nibomo-plugin-packages
