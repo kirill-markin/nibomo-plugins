@@ -15,7 +15,7 @@ def main() -> None:
     destination = root / "dist"
     destination.mkdir(exist_ok=True)
     shared = [root / "README.md", root / "LICENSE"]
-    shared += [path for folder in ["skills", "assets"] for path in (root / folder).rglob("*") if path.is_file()]
+    shared += [path for folder in ["skills", "assets", "references"] for path in (root / folder).rglob("*") if path.is_file()]
     write_archive(root, destination / f"nibomo-{version}-claude.zip", shared + [root / ".claude-plugin/plugin.json", root / ".mcp.json"])
     write_archive(root, destination / f"nibomo-{version}-openai.zip", shared + [root / "plugin.json", root / "mcp.json"])
 

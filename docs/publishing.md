@@ -15,7 +15,7 @@ The repository root is one Nibomo plugin with a single `skills/` directory. Keep
 
 The GitHub Actions **Plugin packages** workflow validates the Claude manifest with the official CLI, validates the portable manifests against their published schemas, checks shared identity and MCP wiring, and produces two ZIPs in its `nibomo-plugin-packages` artifact. Download the artifact from the successful run. CI success proves package structure, not directory approval or workflow quality.
 
-The archives include only each platform's manifest and MCP configuration plus shared skills, assets, README, and license. Repository maintenance scripts and CI dependencies are excluded. The Claude source submission uses this repository's root and tracked branch `main`.
+The archives include only each platform's manifest and MCP configuration plus shared skills, bundled references, assets, README, and license. Repository maintenance scripts and CI dependencies are excluded. The Claude source submission uses this repository's root and tracked branch `main`.
 
 ## Anthropic
 
@@ -47,10 +47,10 @@ Do not create a separate OpenAI listing just for skills that use Nibomo. The pub
 
 ## Real workflow verification
 
-The initial private Claude package exposed all three skills and one connected Nibomo connector. A fresh chat read the self-contained instructions, and read-only `list_workspaces` and four `get_guide` calls succeeded. The shared skills retain those workflows with host-neutral connection instructions. Full card creation, editing, and review flows still need the following smoke checks in a synthetic workspace before publication; never describe them as passed without running them.
+The initial private Claude package exposed all three skills and one connected Nibomo connector. A fresh chat read the self-contained instructions, and read-only `list_workspaces` and four `get_guide` calls succeeded. The shared skills use bundled API, authoring, and review references rather than fetching behavioral guidance at runtime. Full card creation, editing, and review flows still need the following smoke checks in a synthetic workspace before publication; never describe them as passed without running them.
 
 1. Create two tagged cards about WHERE and HAVING from supplied notes. Verify duplicate inspection, question-only fronts, answer-first backs, tags, saved IDs, and readback. Repeat the request and verify duplicate handling.
-2. Study one test card with a supplied IANA timezone. Verify an attempt precedes answer reveal, then feedback, the announced rating, one acknowledged review, and the resulting schedule. Use the live guide's same-payload retry procedure for uncertain outcomes.
+2. Study one test card with a supplied IANA timezone. Verify an attempt precedes answer reveal, then feedback, the announced rating, one acknowledged review, and the resulting schedule. Use the bundled same-payload retry procedure for uncertain outcomes.
 3. Audit the test cards without writes; then explicitly request a scoped edit and verify saved text, media preservation, and tag-filter deck behavior.
 4. Check skips, ambiguous answers, audit-only cleanup, and a disconnected session. Verify clarification or stopping without an invented grade, unauthorized edits, or unacknowledged success claims.
 
