@@ -9,6 +9,10 @@
     "url": "https://nibomo.com"
   },
   "homepage": "https://nibomo.com",
+  "privacyPolicyUrl": "https://nibomo.com/privacy/",
+  "supportUrl": "https://nibomo.com/support/",
+  "documentationUrl": "https://nibomo.com/docs/mcp-connector/",
+  "termsOfServiceUrl": "https://nibomo.com/terms/",
   "license": "MIT",
   "keywords": [
     "flashcards",
