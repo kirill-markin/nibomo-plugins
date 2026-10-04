@@ -14,7 +14,7 @@ For Gemini CLI, install with `gemini extensions install https://github.com/kiril
 
 For Antigravity, download `nibomo-1.29.0-antigravity.zip` from the successful **Plugin packages** workflow artifact, extract it into a `nibomo` directory, then run `/plugin install /absolute/path/to/nibomo` in Antigravity CLI. Use the Antigravity archive because the repository root `plugin.json` targets the portable format. See [Google installation and publishing details](docs/publishing.md#google).
 
-Google packages can be installed directly; an installable Antigravity package does not confirm Marketplace approval. Nibomo OAuth and study workflows in Gemini CLI and Antigravity still require end-to-end verification.
+Google packages can be installed directly; an installable Antigravity package does not confirm Marketplace approval. Record Nibomo OAuth and study-workflow evidence under the [focused verification policy](docs/publishing.md#real-workflow-verification); package installation alone does not establish those results.
 
 The separate [Nibomo app for Executor](https://v2.executor.sh/apps/nibomo/nibomo) connects each installer’s own account to the hosted MCP through OAuth. Its [source and update instructions](executor/README.md) are maintained separately from these plugin archives.
 
