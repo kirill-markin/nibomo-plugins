@@ -66,6 +66,40 @@ A first public OpenAI release has not been established. Exclude this channel fro
 3. Submit the corrected draft and record the decision as pending until observed. Successful submission can complete that operator stage under the app runbook; record the follow-up to open the approved version and select **Publish plugin**. Approval and submission are not publication, and initial public launch is not established until it is verified.
 4. Runtime tool changes use the existing MCP server's scans, including **Rescan** when available; inspect held updates and live tool definitions. They do not require another package ZIP. Complete applicable scans and focused authenticated workflow checks before submission/publication. At initial launch, verify public availability in both ChatGPT and Codex when available; retain evidence of the actual live package and tools, or record unavailable observations as pending.
 
+## Executor
+
+The [Executor Publish workflow](../.github/workflows/executor-publish.yml) runs on a published GitHub Release and supports manual retries for an existing stable `vX.Y.Z` release. Both paths use the publisher from reviewed `main`, but upload only the selected release's exact Git source. Main retains the last release version during development; a main push never triggers publication. Release tags and ZIPs remain immutable, including `v1.29.0` at `41cd84f6f8b947131dbbca36b6f8a577db1f1993`.
+
+### One-time access setup
+
+1. In hosted Executor [Account settings → Tokens](https://v2.executor.sh/account/tokens), create a dedicated personal access token scoped only to **Nibomo**, following the [official token instructions](https://v2.executor.sh/docs/api-keys). Its user needs current owner/admin access and edit/publish permission for the existing app. Select an appropriate expiry and retain the token in your secret manager; it is displayed once. Nibomo card OAuth credentials are separate.
+2. Add it to this repository's Actions secrets as `EXECUTOR_API_TOKEN`. For example, run the interactive command below and paste the token into its hidden prompt. Never put the token in source, command arguments, logs, or release artifacts.
+
+   ```sh
+   gh secret set EXECUTOR_API_TOKEN --repo kirill-markin/nibomo-plugins
+   ```
+
+The workflow receives a read-only `GITHUB_TOKEN` with `contents: read` and `actions: read`. A missing Executor secret fails before provider access. Rotate or revoke the dedicated token through Account settings, then update the GitHub secret.
+
+### Release and retry
+
+1. Complete [release preparation](#release-source-and-durable-packages) and applicable [real workflow verification](#real-workflow-verification). Require the latest **Plugin packages** main-push run for the exact release SHA to succeed, including `packages` and **Executor typecheck**. The publisher rejects an absent, pending, or failed run. Publish the prepared stable GitHub Release to start the workflow.
+2. To retry after fixing access, waiting for CI, or reconciling a diagnosed failure, dispatch from `main` with the existing release tag:
+
+   ```sh
+   gh workflow run executor-publish.yml --repo kirill-markin/nibomo-plugins --ref main -f release_tag=v1.29.0
+   gh run list --repo kirill-markin/nibomo-plugins --workflow executor-publish.yml --limit 5
+   gh run watch <run-id> --repo kirill-markin/nibomo-plugins --exit-status
+   ```
+
+3. Retain the Actions summary in the separate release ledger: release/tag SHA, publisher SHA, exact source cloud run, Executor source commit, deployment ID/commit, accepted publication, and immediate anonymous listing/source result. A matching working source, active deployment, and public source produces **no update needed**. Accepted publication after required checks completes operator work; external propagation can remain pending. A mismatched response fails immediately. Record unexecuted installed-copy/runtime checks explicitly.
+
+Publication is serialized for organization `nibomo` and app `app_741c52b8-681c-4e8c-8536-9b278e02d671`, with no cancellation of an in-progress run. GitHub may replace an older pending run with a newer queued one; use manual dispatch when a skipped release must be published. The public `@nibomo/nibomo` listing has one replaceable revision, so retrying a selected release is supported. Review the selected tag carefully: dispatching an older release intentionally republishes its source.
+
+The publisher reads the complete private workspace, deployed source, public source, ownership, permissions, and saved account selections before writing. The reviewed upload set is `LICENSE`, `README.md`, `index.ts`, `package.json`, and `provider.ts`; it uses Git objects, so credentials, dependencies, lockfiles, and scratch files are excluded. Unexpected source paths stop publication before any omission/deletion. A source-set change requires reviewing the publisher's `SOURCE_PATHS` together with the intended release. Different remote working source must match the deployed/public source and a complete reviewed snapshot in main ancestry; otherwise reconcile the drift explicitly before retrying.
+
+The [hosted management API](https://github.com/UsefulSoftwareCo/executor/blob/v2/packages/app-management/src/contracts/api.ts) saves complete files using the observed working commit as `expected`, deploys the returned immutable commit, and publishes that same commit. Deployment and account selections are read back before publication. A stale revision, response mismatch, or transport error terminates the run; inspect the recorded stage and remote state before rerunning. The publisher never creates an app or changes account selections. Follow the [official deployment model](https://v2.executor.sh/docs/concepts/apps-and-deployments) for manual diagnosis. Existing installed copies do not auto-update; users must review and install the new source separately.
+
 ## Google
 
 | Package | Root manifest | Remote MCP |
