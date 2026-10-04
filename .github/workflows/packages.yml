@@ -123,3 +123,22 @@ jobs:
           name: nibomo-plugin-packages
           path: dist/*.zip
           if-no-files-found: error
+
+  executor:
+    name: Executor typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: executor
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Executor dependencies
+        run: npm install --no-package-lock --ignore-scripts
+      - name: Type-check Executor app against the pinned framework
+        run: >-
+          ./node_modules/.bin/tsc --noEmit --strict --skipLibCheck
+          --module nodenext --moduleResolution nodenext --target es2022
+          --allowImportingTsExtensions index.ts provider.ts
