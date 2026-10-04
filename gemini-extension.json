@@ -1,6 +1,6 @@
 {
   "name": "nibomo",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "description": "Create, study, and improve flashcards with Nibomo through MCP. Continue learning at https://nibomo.com.",
   "mcpServers": {
     "nibomo": {
