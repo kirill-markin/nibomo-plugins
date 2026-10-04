@@ -15,26 +15,30 @@ The app uses Executor's native OAuth discovery, credential handling, per-account
 Use the existing owned app behind `@nibomo/nibomo`. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) owns release authorization and sequencing, including [target selection and unchanged development versions](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/versioning.md); [plugin publishing](../docs/publishing.md#release-source-and-durable-packages) defines source evidence and outcome states. A GitHub push does not deploy Executor. Its framework and MCP SDK dependency versions are not a Nibomo release version.
 
 1. Pin the reviewed merged GitHub SHA and require both cloud **Plugin packages** jobs, including **Executor typecheck**, to pass. Inspect the complete `executor/` upload directory; exclude credentials, dependencies, lockfiles, and scratch files. Omitted remote files are deleted by a source commit, so reconcile intentional differences first.
-2. Authenticate the official CLI to the owning `@nibomo` organization. Follow the [official deployment instructions](https://github.com/UsefulSoftwareCo/executor/blob/v2/packages/app-templates/executor/skills/app-authoring/deploy.md), passing `--host https://v2.executor.sh` on every app command. Inspect owned apps and read the selected app's working source:
+2. Connect to the MCP for [hosted Executor](https://v2.executor.sh) with access to the owning `@nibomo` organization. Follow the [official MCP deployment instructions](https://github.com/UsefulSoftwareCo/executor/blob/v2/packages/app-templates/executor/skills/app-authoring/deploy.md#deploy-through-mcp). In Executor's `execute`, discover the current management tools:
 
-   ```sh
-   executor apps list --host https://v2.executor.sh
-   executor apps source --app <existing-app-id> --host https://v2.executor.sh
+   ```js
+   return await tools.search({ query: "Executor" });
    ```
 
-   Confirm its ownership and published `@nibomo/nibomo` identity. Compare working and deployed source with the reviewed directory and public listing; record the working `revision.commit`. If source, deployment, and listing already match the target, record **no update needed** with evidence. Missing access is a blocker, not permission to create a replacement.
-3. From the repository root, save the reviewed complete directory with the expected working revision, then deploy the returned revision:
+   Page through results as needed and read the exact callable paths and signatures. Discover and call `context.get({})`; verify its approved organization, slug, and role, and use its returned `organization` explicitly. Discover `appManagement.list`, `appManagement.source`, `apps.source`, and publication reads; confirm the existing app ID, ownership, and published `@nibomo/nibomo` identity. Compare working source, immutable deployed source, and public listing with the reviewed directory; record the working `revision.commit`. If all match the target, record **no update needed** with evidence. If access or a required operation is missing, stop and record the exact missing grant/signature or error. Do not create a replacement or guess CLI flags.
+3. Discover `appManagement.commit` and `appManagement.deploy`. Serialize the reviewed complete `executor/` directory as `{ path, content }` entries with paths relative to that directory, retaining the exclusions from step 1. Pass the actual file contents as JSON data; remote `execute` cannot read a local directory. Using the discovered management profile and signatures:
 
-   ```sh
-   executor apps commit --app <existing-app-id> --files ./executor \
-     --expected <observed-working-commit> --message "Update Nibomo" \
-     --host https://v2.executor.sh
-   executor apps deploy --app <existing-app-id> --commit <returned-revision-commit> \
-     --host https://v2.executor.sh
+   ```js
+   const executor = tools.executor.profiles["<discovered-management-profile-id>"];
+   const path = { organization: "<approved-organization-id>", app: "<existing-app-id>" };
+   const saved = await executor.appManagement.commit({
+     path,
+     body: { expected: "<observed-working-commit>", files, message: "Update Nibomo" },
+   });
+   return await executor.appManagement.deploy({
+     path,
+     body: { commit: saved.revision.commit },
+   });
    ```
 
-   On a stale expected-commit rejection, reread source and reconcile before retrying. A saved commit alone does not change running code. Read back the deployed revision and deployment ID; failed deployment does not establish an update.
-4. Publish that same selected source revision to the existing registry listing. Consult the current CLI help or discovered management-tool signature and the official procedure for supported publication arguments; do not guess flags. Read back the public listing commit and compare it with the deployed commit. Preserve the owned app's account selections; test with a separate installed copy.
+   Here `files` is the complete serialized file list, not a local path. On a stale expected-commit rejection, reread working source and reconcile before retrying. Deployment takes the returned commit without `expected` or `expectedDeployment`; a saved commit alone does not change running code. Read back the deployed revision, deployment ID, and active deployment; failed deployment does not establish an update. Start a new `execute` to rediscover tools after deployment.
+4. Discover `appManagement.publish` and publish that same source commit to the existing registry listing. The [official management contract](https://github.com/UsefulSoftwareCo/executor/blob/v2/packages/app-management/src/contracts/api.ts) takes the organization/app in `path` and `{ commit }` in `body`; verify the serving signature before calling it. The hosted UI's [Share publicly control](https://github.com/UsefulSoftwareCo/executor/blob/v2/packages/ui/src/implementation/dashboard/publish-app.tsx) is also available; verify its selected source commit before publication. Read back the public listing commit and compare it with the deployed commit. Preserve the owned app's account selections; test with a separate installed copy.
 5. Verify the [anonymous public listing](https://v2.executor.sh/apps/nibomo/nibomo), source identity, website, and MCP URL. In a separate copy, verify empty selection exposes no upstream tools, OAuth connects the intended account, account selection discovers its tools, and relevant read/write and destructive-approval behavior works. Use the [manual workflow checks](../docs/publishing.md#real-workflow-verification) with synthetic data. Record failures or unexecuted checks explicitly.
 
 Keep the mapping **GitHub SHA + cloud run → Executor source commit → deployment ID/commit → public listing commit → tested installed-copy revision** in the separate release ledger. Registry publication does not update installed copies; users must review and install the new source separately. A first-create flow is appropriate only after independently proving that no existing owned app exists and obtaining explicit authorization.
