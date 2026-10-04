@@ -1,6 +1,6 @@
 # Publishing Nibomo plugins
 
-Use these procedures during an authorized release. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release-current-version.md) owns authorization, cross-platform sequence, version alignment, completion gates, and the next development bump. Editing these docs does not authorize publication or settings changes.
+Use these procedures during an authorized release. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) owns authorization, cross-platform sequence, and completion gates; its [versioning policy](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/versioning.md) owns target selection and source alignment. Editing these docs does not authorize publication or settings changes.
 
 ## Shared source and package formats
 
@@ -13,15 +13,21 @@ The repository root is one Nibomo plugin with a single `skills/` directory. Keep
 | Skills | `skills/<name>/SKILL.md` | Same files; `agents/openai.yaml` declares the MCP dependency |
 | Listing content | Manifest and README | `extensions.com.openai.interface` and assets |
 | Directory submission | GitHub repository and optional folder | ZIP upload to the existing plugin |
-| Skill updates | New version on tracked branch or tag, checked before publication | New complete ZIP, checked and reviewed |
+| Skill updates | Selected release source on tracked branch or tag, checked before publication | New complete ZIP, checked and reviewed |
 
 The GitHub Actions **Plugin packages** workflow validates the Claude manifest with the official CLI, validates the portable manifests against their published schemas, checks shared identity and MCP wiring including Gemini, and produces four ZIPs in its `nibomo-plugin-packages` artifact. It verifies archive contents against the shared source, validates Antigravity's minimal manifest against the inline documented contract, and installs and lists the Gemini package with the official CLI in a temporary profile. Download the artifact from the successful run. CI success proves package structure and Gemini installation, not directory approval, OAuth compatibility, or workflow quality.
 
 The archives include only each platform's manifest and MCP configuration plus shared skills, bundled references, assets, README, and license. Repository maintenance scripts and CI dependencies are excluded. The Claude source submission uses this repository's root and tracked branch `main`.
 
+## Prepare the selected release
+
+Follow the canonical [versioning policy](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/versioning.md) before preparing artifacts. For a new release, ask the user to select patch, minor, or major, show the resulting versions, and recommend a choice from completed changes. Wait for the answer before bumping, building release artifacts, or publishing unless this session already explicitly supplies the choice or exact target. Resume a prepared or partly published release at its recorded target without another bump.
+
+Merge all app and companion source-version updates through their normal PR and cloud-CI gates before signed release builds, registry publication, provider packages, or metadata publication. Pin each resulting source SHA in the release ledger. Development keeps the last coordinated release version, so an unchanged manifest version does not prove matching source. The app continuously deploys web/backend from `main`; the formal coordinated version and each exact build/deployment SHA are separate identities.
+
 ## Release source and durable packages
 
-1. Record the shared release version and exact companion GitHub SHA on `main`. Require both `packages` and **Executor typecheck** in **Plugin packages** to pass for that SHA, as well as the PR checks before merge. A successful older run is not evidence for changed source.
+1. Record the user-selected shared release version and exact companion GitHub SHA on `main` after preparation. Require both `packages` and **Executor typecheck** in **Plugin packages** to pass for that SHA, as well as the PR checks before merge. A successful older run is not evidence for changed source.
 2. Download that run's `nibomo-plugin-packages` artifact: `nibomo-<version>-claude.zip`, `nibomo-<version>-openai.zip`, `nibomo-<version>-gemini.zip`, and `nibomo-<version>-antigravity.zip`. Inspect filenames, manifests, shared skills/references, and MCP identity against the selected source; retain run URL and archive SHA-256 digests in the release ledger. Antigravity's minimal manifest has no version field; its filename and source mapping identify the version.
 3. Inspect existing companion tags and [GitHub Releases](https://github.com/kirill-markin/nibomo-plugins/releases). Reuse only an exact matching release, or create an immutable tag and Release for this SHA using the existing convention, or `vX.Y.Z` if none exists. Attach all four original CI ZIPs as durable assets. A conflicting tag, source SHA, or asset digest blocks publication; never move the tag or overwrite conflicting assets. Establish and verify the Gemini asset selection below before advertising this release as installable.
 4. Record provider outcomes separately. Matching versions in Git do not publish any provider, and a CI artifact is not a public release. Keep dated evidence in the release's separate ledger, not this guide.
@@ -77,7 +83,7 @@ Record Google client installation, OAuth, and real study-flow results separately
 
 Use the existing [Gemini gallery entry](https://geminicli.com/extensions/?name=kirill-markinnibomo-plugins) and retain topic `gemini-cli-extension`. Its daily crawl may lag; gallery visibility does not prove release installability.
 
-The [official release guide](https://geminicli.com/docs/extensions/releasing/) supports Git branch/tag/commit `--ref` selection and GitHub Release assets. Unpinned Git installations follow branch `HEAD`; release installations check GitHub's Latest release, not the manifest version. Before a development bump:
+The [official release guide](https://geminicli.com/docs/extensions/releasing/) supports Git branch/tag/commit `--ref` selection and GitHub Release assets. Unpinned Git installations follow branch `HEAD`; release installations check GitHub's Latest release, not the manifest version. Before any development commits reach `main`, even with unchanged manifest versions:
 
 1. Establish the immutable companion release above with matching manifest/tag version. With four ZIP formats attached, avoid ambiguous generic-asset selection: attach byte-identical copies of the CI Gemini ZIP as `darwin.nibomo.zip`, `linux.nibomo.zip`, and `win32.nibomo.zip`, using the documented platform naming. Verify their digests and root `gemini-extension.json`.
 2. Only after the tag/assets exist, install the repository URL with `--ref=<verified-release-tag>` in a clean profile. Inspect the selected asset, manifest, and installation metadata (`~/.gemini/extensions/nibomo/.gemini-extension-install.json`). Verify the actual update destination too. Existing Git installs need an explicit move to the verified stable installation channel; adding a Release does not prove they migrated.
@@ -85,13 +91,15 @@ The [official release guide](https://geminicli.com/docs/extensions/releasing/) s
 
 Antigravity is optional marketplace expansion. If requested, use the existing identity and the official [Marketplace interest form](https://forms.gle/2EX5RFYPoJe1UgxR9) linked by [Marketplace documentation](https://antigravity.google/docs/marketplace?tab=cli). Record actual review/publication status; an interest form or installable archive is not public approval.
 
-## Before the next development version
+<a id="before-the-next-development-version"></a>
 
-Apply the [app runbook's](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release-current-version.md) completion gate first. Preserve the release SHA, durable assets, and each live or pending provider version in the separate release ledger.
+## Release closeout and development protections
 
-Before merging a bump onto tracked `main`, turn off Anthropic's **Publish new versions automatically** and verify the saved setting. Preserve the current published/pending commit and review; do not change the tracked ref to bypass review. Do not publish the detected development version. If the portal cannot preserve the required state, block the bump and resolve that condition first.
+Apply the [app runbook's](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) completion gate across every in-scope platform and channel, including tags, GitHub Releases, durable packages, and public evidence. Preserve each release SHA and live or pending provider version in the separate release ledger; pending review remains pending. Keep the selected version after completion, with no next-development bump. Published tags and packages remain immutable.
 
-Protect Gemini installation/update paths with the verified stable release channel above before `main` advances. Keep all shared manifest and archive-version references aligned as the app runbook directs. OpenAI reviews and Executor publication remain separate from a GitHub merge; use the [Executor update procedure](../executor/README.md#update-the-published-app) for that surface.
+Before **any development commits** merge onto tracked `main`, regardless of unchanged manifest versions, turn off Anthropic's **Publish new versions automatically** and verify the saved setting. Preserve the current published/pending commit and review; do not change the tracked ref to bypass review. Do not publish detected development source. If the portal cannot preserve the required state, block development merges to tracked `main` and resolve that condition first. These protections apply whenever development proceeds, including while provider review is pending.
+
+Protect Gemini fresh-install and update paths with the [verified stable release channel](#public-listings) before development advances `main`. Existing Git installs must explicitly move to the verified stable channel; do not infer migration from a Release or unchanged version. Keep shared manifest versions aligned with the last coordinated release during development, as the canonical versioning policy directs. OpenAI reviews and Executor publication remain separate from a GitHub merge; preserve pending submissions and use the [Executor update procedure](../executor/README.md#update-the-published-app) for that surface.
 
 ## Real workflow verification
 
