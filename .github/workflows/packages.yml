@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - uses: actions/setup-python@v6
@@ -122,7 +122,7 @@ jobs:
           printf 'y\n' | npx --yes @google/gemini-cli@0.62.0 extensions install "$RUNNER_TEMP/nibomo-gemini-package/nibomo" --consent
           npx --yes @google/gemini-cli@0.62.0 extensions list
           cmp gemini-extension.json "$GEMINI_CLI_HOME/.gemini/extensions/nibomo/gemini-extension.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nibomo-plugin-packages
           path: dist/*.zip
@@ -136,7 +136,7 @@ jobs:
         working-directory: executor
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
       - name: Install pinned Executor dependencies
