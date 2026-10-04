@@ -29,11 +29,15 @@ jobs:
             exit 1
           fi
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install schema validation dependencies
+        run: python -m pip install -r requirements-ci.txt
+
       - name: Validate MCP Registry manifest
-        run: |
-          set -euo pipefail
-          curl -fsS 'https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json' > /tmp/mcp-server-schema-2025-12-11.json
-          npx --yes ajv-cli@5 validate -s /tmp/mcp-server-schema-2025-12-11.json -d server.json --strict=false
+        run: python scripts/validate_mcp_registry.py
 
       - name: Check for registry credential
         run: |
