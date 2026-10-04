@@ -4,7 +4,7 @@ Use these procedures during an authorized release. The [app release runbook](htt
 
 ## Shared source and package formats
 
-The repository root is one Nibomo plugin with a single `skills/` directory. Keep identity fields in `plugin.json` and `.claude-plugin/plugin.json` aligned, including name and version in `gemini-extension.json`. All formats and skill dependencies use the existing `https://mcp.nibomo.com/mcp` endpoint. Antigravity metadata is derived during packaging. No second server or provider-specific copy of the skills is needed.
+The repository root is one Nibomo plugin with a single `skills/` directory. Keep identity fields in `plugin.json` and `.claude-plugin/plugin.json` aligned, including name and version in `gemini-extension.json`. Keep `server.json.version` aligned with these plugin versions; **Plugin packages** checks this locally within the repository. All formats and skill dependencies use the existing `https://mcp.nibomo.com/mcp` endpoint. Antigravity metadata is derived during packaging. No second server or provider-specific copy of the skills is needed.
 
 | Component | Anthropic | OpenAI |
 |---|---|---|
@@ -18,6 +18,10 @@ The repository root is one Nibomo plugin with a single `skills/` directory. Keep
 The GitHub Actions **Plugin packages** workflow validates the Claude manifest with the official CLI, validates the portable manifests against their published schemas, checks shared identity and MCP wiring including Gemini, and produces four ZIPs in its `nibomo-plugin-packages` artifact. It verifies archive contents against the shared source, validates Antigravity's minimal manifest against the inline documented contract, and installs and lists the Gemini package with the official CLI in a temporary profile. Download the artifact from the successful run. CI success proves package structure and Gemini installation, not directory approval, OAuth compatibility, or workflow quality.
 
 The archives include only each platform's manifest and MCP configuration plus shared skills, bundled references, assets, README, and license. Repository maintenance scripts and CI dependencies are excluded. The Claude source submission uses this repository's root and tracked branch `main`.
+
+## MCP Registry
+
+This repository owns the registry manifest, validation, and manual publisher. Follow [Publishing to the MCP Registry](mcp-registry-publishing.md) for namespace credential setup, the companion workflow, and troubleshooting. The [MCP release gate](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/mcp-and-plugins.md#mcp) remains part of the app release runbook; backend source and deployment stay in the app repository. Registry publication and plugin/provider publication are separate release actions.
 
 ## Prepare the selected release
 

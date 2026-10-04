@@ -41,6 +41,8 @@ jobs:
                   schema = json.load(response)
               jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(data)
           portable = json.loads((root / 'plugin.json').read_text())
+          registry = json.loads((root / 'server.json').read_text())
+          assert registry['version'] == portable['version'], 'MCP Registry manifest disagrees on version'
           claude = json.loads((root / '.claude-plugin/plugin.json').read_text())
           for field in ['name', 'version', 'description', 'author', 'homepage', 'repository', 'license', 'keywords']:
               assert portable[field] == claude[field], f'Manifests disagree on {field}'
@@ -60,7 +62,7 @@ jobs:
               dependency = metadata['dependencies']['tools']
               assert len(dependency) == 1 and dependency[0]['url'] == endpoint, f'Wrong dependency in {skill}'
               assert dependency[0]['value'] == 'nibomo' and dependency[0]['transport'] == 'streamable_http', f'Wrong transport in {skill}'
-          print('Portable schemas, manifest identities including Gemini, and shared MCP wiring passed.')
+          print('Portable schemas, manifest identities including Gemini, MCP Registry version, and shared MCP wiring passed.')
           PY
       - name: Build all installable archives
         run: python scripts/package_plugins.py
