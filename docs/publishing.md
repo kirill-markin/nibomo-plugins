@@ -91,7 +91,7 @@ The workflow receives a read-only `GITHUB_TOKEN` with `contents: read` and `acti
 2. To retry after fixing access, waiting for CI, or reconciling a diagnosed failure, dispatch from `main` with the existing release tag:
 
    ```sh
-   gh workflow run executor-publish.yml --repo kirill-markin/nibomo-plugins --ref main -f release_tag=v1.29.0
+   gh workflow run executor-publish.yml --repo kirill-markin/nibomo-plugins --ref main -f release_tag=v1.30.0
    gh run list --repo kirill-markin/nibomo-plugins --workflow executor-publish.yml --limit 5
    gh run watch <run-id> --repo kirill-markin/nibomo-plugins --exit-status
    ```

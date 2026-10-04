@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "nibomo",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "description": "Turn notes into clear flashcards, study due cards one question at a time, and improve your collection with Nibomo.",
   "author": {
     "name": "SAMO DANNI EOOD",
