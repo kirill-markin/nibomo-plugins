@@ -10,13 +10,13 @@ For Claude chat, Cowork, and Claude Code, the bundle includes Anthropic's plugin
 
 For ChatGPT and Codex, the bundle includes the portable Agent Plugins format and OpenAI metadata. Public availability requires OpenAI's separate review and publication. See OpenAI's [plugin guide](https://developers.openai.com/plugins/build/plugins). Having this source package does not mean the plugin is published in either directory.
 
-For Gemini CLI, install with `gemini extensions install https://github.com/kirill-markin/nibomo-plugins`, restart the CLI, and run `/mcp auth nibomo` to connect your account through browser OAuth. The extension uses automatic OAuth discovery and includes the same three skills.
+For Gemini CLI, install with `gemini extensions install https://github.com/kirill-markin/nibomo-plugins`, restart the CLI, and run `/mcp auth nibomo` to connect your account through browser OAuth. The extension uses automatic OAuth discovery and includes the same three skills. This unpinned Git install follows repository `HEAD` and can receive development changes. See the [existing Gemini gallery entry](https://geminicli.com/extensions/?name=kirill-markinnibomo-plugins) and [stable-release procedure](docs/publishing.md#public-listings); use a release tag only after its assets and installation have been verified.
 
 For Antigravity, download `nibomo-1.29.0-antigravity.zip` from the successful **Plugin packages** workflow artifact, extract it into a `nibomo` directory, then run `/plugin install /absolute/path/to/nibomo` in Antigravity CLI. Use the Antigravity archive because the repository root `plugin.json` targets the portable format. See [Google installation and publishing details](docs/publishing.md#google).
 
-Google packages can be installed directly; that does not confirm a public gallery or Marketplace listing. Nibomo OAuth and study workflows in Gemini CLI and Antigravity still require end-to-end verification.
+Google packages can be installed directly; an installable Antigravity package does not confirm Marketplace approval. Nibomo OAuth and study workflows in Gemini CLI and Antigravity still require end-to-end verification.
 
-The separate [Nibomo app for Executor](https://github.com/kirill-markin/nibomo-plugins/tree/main/executor) connects each installer’s own account to the hosted MCP through OAuth. Its source and publication instructions are maintained separately from these plugin archives.
+The separate [Nibomo app for Executor](https://v2.executor.sh/apps/nibomo/nibomo) connects each installer’s own account to the hosted MCP through OAuth. Its [source and update instructions](executor/README.md) are maintained separately from these plugin archives.
 
 ## Try it
 
