@@ -16,6 +16,8 @@ For Antigravity, download `nibomo-1.29.0-antigravity.zip` from the successful **
 
 Google packages can be installed directly; that does not confirm a public gallery or Marketplace listing. Nibomo OAuth and study workflows in Gemini CLI and Antigravity still require end-to-end verification.
 
+The separate [Nibomo app for Executor](https://github.com/kirill-markin/nibomo-plugins/tree/main/executor) connects each installer’s own account to the hosted MCP through OAuth. Its source and publication instructions are maintained separately from these plugin archives.
+
 ## Try it
 
 - **Create flashcards:** “Turn these notes into five Nibomo cards. Check for duplicates and use the style of my existing cards.”
