@@ -248,8 +248,12 @@ def main() -> None:
             "message": f"Publish Nibomo {tag} from {sha}",
         }))
         saved_revision = record(saved["revision"])
-        require(saved_revision["code"] == revision["code"] and files(saved["files"]) == intended, "Saved source mismatch")
+        require(saved_revision["code"] == revision["code"], "Saved revision code mismatch")
         working_commit = commit(saved_revision["commit"])
+        saved_working = record(executor(f"{app_path}/workspace", "GET", None))
+        saved_working_revision = record(saved_working["revision"])
+        require(saved_working_revision["code"] == revision["code"] and saved_working_revision["commit"] == working_commit
+                and files(saved_working["files"]) == intended, "Saved source verification failed")
     else:
         require(release_sha(tag) == sha, "Release tag changed before publication")
     note("Executor source commit", working_commit)
