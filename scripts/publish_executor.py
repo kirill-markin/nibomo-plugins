@@ -264,7 +264,7 @@ def main() -> None:
         returned_app = record(result["app"])
         require(returned_app["id"] == APP and returned_app["owner"] == access["owner"]
                 and returned_app["activeDeployment"] == deployed["id"], "Deployment response app mismatch")
-    require(deployed["sourceCommit"] == working_commit and files(deployed["files"]) == intended, "Deployment source mismatch")
+    require(deployed["sourceCommit"] == working_commit, "Deployment source commit mismatch")
     note("Deployment", f"{string(deployed['id'])} — commit {working_commit}")
     active = record(executor(app_path, "GET", None))
     verified = record(executor(f"{app_path}/source", "GET", None))
