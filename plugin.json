@@ -11,17 +11,23 @@
   "homepage": "https://nibomo.com",
   "license": "MIT",
   "keywords": [
+    "nibomo",
     "flashcards",
+    "flash cards",
+    "study cards",
     "study",
     "education",
-    "spaced-repetition"
+    "spaced-repetition",
+    "revision",
+    "vocabulary",
+    "exam-prep"
   ],
   "repository": "https://github.com/kirill-markin/nibomo-plugins",
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "Nibomo",
-        "shortDescription": "Create, study, improve cards",
+        "displayName": "Nibomo Flashcards",
+        "shortDescription": "Create, study, improve flashcards",
         "longDescription": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included.",
         "developerName": "SAMO DANNI EOOD",
         "category": "Productivity",
