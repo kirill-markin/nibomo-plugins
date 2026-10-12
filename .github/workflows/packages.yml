@@ -44,7 +44,7 @@ jobs:
               jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(data)
           portable = json.loads((root / 'plugin.json').read_text())
           openai_identity = json.loads((root / 'openai-package.json').read_text())
-          assert set(openai_identity) == {'name', 'mcpAuth'}, 'Unexpected OpenAI package configuration'
+          assert 'name' in openai_identity and set(openai_identity) <= {'name', 'mcpAuth'}, 'Unexpected OpenAI package configuration'
           jsonschema.Draft202012Validator(schemas['plugin.json'], format_checker=jsonschema.FormatChecker()).validate({**portable, 'name': openai_identity['name']})
           interface = portable['extensions']['com.openai']['interface']
           for field, maximum in [('displayName', 30), ('shortDescription', 30), ('longDescription', 4000), ('developerName', 80)]:
@@ -74,7 +74,7 @@ jobs:
           PY
       - name: Build all installable archives
         run: python scripts/package_plugins.py
-      - name: Validate OpenAI vendor OAuth metadata and portable base projection
+      - name: Validate OpenAI MCP configuration and optional vendor OAuth metadata
         run: |
           python - <<'PY'
           import copy
@@ -117,24 +117,32 @@ jobs:
               'required': ['com.openai'],
               'additionalProperties': False,
           }
-          expected_extensions = {'com.openai': {'auth': config['mcpAuth']}}
-          jsonschema.Draft202012Validator(vendor_schema).validate(expected_extensions)
           assert set(base['mcpServers']) == {'nibomo'}, 'Unexpected OpenAI MCP server'
           assert 'extensions' not in base['mcpServers']['nibomo'], 'Portable base must not contain vendor extensions'
           assert not base['mcpServers']['nibomo'].get('headers'), 'OpenAI MCP headers must be empty or absent'
           expected = copy.deepcopy(base)
-          expected['mcpServers']['nibomo']['extensions'] = expected_extensions
+          if 'mcpAuth' in config:
+              expected_extensions = {'com.openai': {'auth': config['mcpAuth']}}
+              jsonschema.Draft202012Validator(vendor_schema).validate(expected_extensions)
+              expected['mcpServers']['nibomo']['extensions'] = expected_extensions
           with ZipFile(f'dist/nibomo-{version}-openai.zip') as archive:
-              generated = json.loads(archive.read('mcp.json'))
+              generated_bytes = archive.read('mcp.json')
+              generated = json.loads(generated_bytes)
+          if 'mcpAuth' not in config:
+              assert generated_bytes == Path('mcp.json').read_bytes(), 'Existing-connection MCP must match portable source byte-for-byte'
           assert generated == expected, 'OpenAI MCP configuration drifted from the complete source projection'
           projection = copy.deepcopy(generated)
-          extensions = projection['mcpServers']['nibomo'].pop('extensions')
-          jsonschema.Draft202012Validator(vendor_schema).validate(extensions)
+          if 'mcpAuth' in config:
+              extensions = projection['mcpServers']['nibomo'].pop('extensions')
+              jsonschema.Draft202012Validator(vendor_schema).validate(extensions)
           assert projection == base, 'OpenAI adapter changed portable MCP fields'
           with urllib.request.urlopen(base['$schema'], timeout=30) as response:
               schema = json.load(response)
           jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(projection)
-          print('OpenAI vendor OAuth/DCR contract and complete official portable base projection passed.')
+          if 'mcpAuth' in config:
+              print('OpenAI vendor OAuth/DCR contract and complete official portable base projection passed.')
+          else:
+              print('Complete OpenAI MCP configuration passed the official portable schema with no auth override.')
           PY
       - name: Verify archive contents and generated manifests
         run: |
@@ -168,8 +176,11 @@ jobs:
                       identity = json.loads((root / 'openai-package.json').read_text())
                       assert json.loads(archive.read('plugin.json')) == {**portable, 'name': identity['name']}, 'OpenAI archive changed more than its assigned package identity'
                       expected_mcp = copy.deepcopy(json.loads(Path('mcp.json').read_text()))
-                      expected_mcp['mcpServers']['nibomo']['extensions'] = {'com.openai': {'auth': identity['mcpAuth']}}
-                      assert json.loads(archive.read('mcp.json')) == expected_mcp, 'OpenAI archive changed more than its documented OAuth/DCR extension'
+                      if 'mcpAuth' in identity:
+                          expected_mcp['mcpServers']['nibomo']['extensions'] = {'com.openai': {'auth': identity['mcpAuth']}}
+                      else:
+                          assert archive.read('mcp.json') == Path('mcp.json').read_bytes(), 'Changed existing-connection OpenAI MCP source'
+                      assert json.loads(archive.read('mcp.json')) == expected_mcp, 'OpenAI archive changed more than its configured MCP projection'
                   elif platform != 'antigravity':
                       for filename in manifests:
                           assert archive.read(filename) == Path(filename).read_bytes(), f'Changed manifest in {platform}: {filename}'
