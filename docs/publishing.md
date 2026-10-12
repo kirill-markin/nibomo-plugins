@@ -76,7 +76,7 @@ Keep the existing OAuth discovery/DCR connection. If advanced authentication set
 
 ## Executor
 
-The [Executor Publish workflow](../.github/workflows/executor-publish.yml) runs on a published GitHub Release and supports manual retries for an existing stable `vX.Y.Z` release. Both paths use the publisher from reviewed `main`, but upload only the selected release's exact Git source. Main retains the last release version during development; a main push never triggers publication. Release tags and ZIPs remain immutable, including `v1.29.0` at `41cd84f6f8b947131dbbca36b6f8a577db1f1993`.
+The [Executor Publish workflow](../.github/workflows/executor-publish.yml) runs on a published GitHub Release and supports manual retries for an existing stable `vX.Y.Z` release or its `executor-vX.Y.Z-scope-migration` remediation release. Both paths use the publisher from reviewed `main`, but upload only the selected release's exact Git source. Main retains the last release version during development; a main push never triggers publication. Release tags and ZIPs remain immutable, including `v1.29.0` at `41cd84f6f8b947131dbbca36b6f8a577db1f1993`.
 
 ### One-time access setup
 
@@ -89,20 +89,26 @@ The [Executor Publish workflow](../.github/workflows/executor-publish.yml) runs 
 
 The workflow receives a read-only `GITHUB_TOKEN` with `contents: read` and `actions: read`. A missing Executor secret fails before provider access. Rotate or revoke the dedicated token through Account settings, then update the GitHub secret.
 
+### Scope migration provenance
+
+Executor publishes organization `nibomo` under `nibomo.executor.community`, following the [vendor package-name contract](https://executor.sh/docs/author-an-app). Keep the existing app and account selections; the package name and public listing URL follow this scope. Registry reads use the current scope even when retained published source still contains its previous package name. The vendor API provides no legacy-scope alias.
+
+For a scope migration after a coordinated release is immutable, retain its `vX.Y.Z` tag and all package assets. Merge the corrected Executor source and publisher through a reviewed PR, with shared manifests still at `X.Y.Z`. Require successful exact-source main **Plugin packages** and **Executor typecheck**, then create an immutable annotated `executor-vX.Y.Z-scope-migration` tag and stable supplemental GitHub Release at that merged SHA. Set `make_latest=false` explicitly when creating the Release, preserving the coordinated GitHub Latest release and Gemini assets. Retain the tag, exact Git source, cloud run, and provider source/deployment identities in the ledger. The supplemental Release publishes only its exact tagged Executor files; never rewrite coordinated source at runtime or move/replace its tag or ZIPs.
+
 ### Release and retry
 
 1. Complete [release preparation](#release-source-and-durable-packages) and applicable [real workflow verification](#real-workflow-verification). Require the latest **Plugin packages** main-push run for the exact release SHA to succeed, including `packages` and **Executor typecheck**. The publisher rejects an absent, pending, or failed run. Publish the prepared stable GitHub Release to start the workflow.
 2. To retry after fixing access, waiting for CI, or reconciling a diagnosed failure, dispatch from `main` with the existing release tag:
 
    ```sh
-   gh workflow run executor-publish.yml --repo kirill-markin/nibomo-plugins --ref main -f release_tag=v1.32.0
+   gh workflow run executor-publish.yml --repo kirill-markin/nibomo-plugins --ref main -f release_tag=executor-v1.34.0-scope-migration
    gh run list --repo kirill-markin/nibomo-plugins --workflow executor-publish.yml --limit 5
    gh run watch <run-id> --repo kirill-markin/nibomo-plugins --exit-status
    ```
 
 3. Retain the Actions summary in the separate release ledger: release/tag SHA, publisher SHA, exact source cloud run, Executor source commit, deployment ID/commit, accepted publication, and immediate anonymous listing/source result. A matching working source, active deployment, and public source produces **no update needed**. Accepted publication after required checks completes operator work; external propagation can remain pending. A mismatched response fails immediately. Record unexecuted installed-copy/runtime checks explicitly.
 
-Publication is serialized for organization `nibomo` and app `app_741c52b8-681c-4e8c-8536-9b278e02d671`, with no cancellation of an in-progress run. GitHub may replace an older pending run with a newer queued one; use manual dispatch when a skipped release must be published. The public `@nibomo/nibomo` listing has one replaceable revision, so retrying a selected release is supported. Review the selected tag carefully: dispatching an older release intentionally republishes its source.
+Publication is serialized for organization `nibomo` and app `app_741c52b8-681c-4e8c-8536-9b278e02d671`, with no cancellation of an in-progress run. GitHub may replace an older pending run with a newer queued one; use manual dispatch when a skipped release must be published. The public `@nibomo.executor.community/nibomo` listing has one replaceable revision, so retrying a selected release is supported. Review the selected tag carefully: dispatching an older release intentionally republishes its source.
 
 The publisher reads the complete private workspace, deployed source, public source, ownership, permissions, and saved account selections before writing. The reviewed upload set is `LICENSE`, `README.md`, `index.ts`, `package.json`, and `provider.ts`; it uses Git objects, so credentials, dependencies, lockfiles, and scratch files are excluded. Unexpected source paths stop publication before any omission/deletion. A source-set change requires reviewing the publisher's `SOURCE_PATHS` together with the intended release. Different remote working source must match the deployed/public source and a complete reviewed snapshot in main ancestry; otherwise reconcile the drift explicitly before retrying.
 

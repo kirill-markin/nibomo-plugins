@@ -16,7 +16,7 @@ For Antigravity, download `nibomo-1.34.0-antigravity.zip` from the successful **
 
 Google packages can be installed directly; an installable Antigravity package does not confirm Marketplace approval. Record Nibomo OAuth and study-workflow evidence under the [focused verification policy](docs/publishing.md#real-workflow-verification); package installation alone does not establish those results.
 
-The separate [Nibomo app for Executor](https://v2.executor.sh/apps/nibomo/nibomo) connects each installer’s own account to the hosted MCP through OAuth. Its [source and update instructions](executor/README.md) are maintained separately from these plugin archives.
+The separate [Nibomo app for Executor](https://executor.sh/apps/nibomo.executor.community/nibomo) connects each installer’s own account to the hosted MCP through OAuth. Its [source and update instructions](executor/README.md) are maintained separately from these plugin archives.
 
 ## Try it
 

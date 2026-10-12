@@ -4,7 +4,7 @@ This standalone Executor app connects to the existing Nibomo MCP service at http
 
 ## Install and connect
 
-Install a reviewed copy from the existing [public Nibomo listing](https://v2.executor.sh/apps/nibomo/nibomo), then connect and select your own Nibomo account in the app account settings. An installed copy is separate from its public registry listing; publishing an update does not update existing copies.
+Install a reviewed copy from the existing [public Nibomo listing](https://executor.sh/apps/nibomo.executor.community/nibomo), then connect and select your own Nibomo account in the app account settings. An installed copy is separate from its public registry listing; publishing an update does not update existing copies.
 
 Empty account selections expose no upstream tools. Each selected account discovers its own tools and can read and write cards, tags, saved decks, and review progress in workspaces that account can access. Tools marked destructive by the MCP server require approval. Other writes follow the upstream tool policies. Authorize only your own account and review requested changes before approving them.
 
@@ -12,7 +12,7 @@ The app uses Executor's native OAuth discovery, credential handling, per-account
 
 ## Update the published app
 
-The **Executor Publish** GitHub Actions workflow updates the existing owned app behind `@nibomo/nibomo` when a stable companion GitHub Release is published. A main push does not publish. Manual retries select an existing release; the publisher reads its exact immutable Git commit and requires both **Plugin packages** jobs to pass for that source.
+The **Executor Publish** GitHub Actions workflow updates the existing owned app behind `@nibomo.executor.community/nibomo` when a stable companion GitHub Release is published. A main push does not publish. Manual retries select an existing release; the publisher reads its exact immutable Git commit and requires both **Plugin packages** jobs to pass for that source.
 
 Follow [Executor publication](../docs/publishing.md#executor) for the one-time secret setup, release/retry command, drift handling, and evidence to retain. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) owns authorization and release sequencing. Executor framework and MCP SDK dependency versions are not a Nibomo release version. Existing installed copies remain independent and require a separately reviewed installation.
 

@@ -11,7 +11,7 @@ from typing import TypeAlias
 Json: TypeAlias = None | bool | int | float | str | list["Json"] | dict[str, "Json"]
 REPOSITORY = "kirill-markin/nibomo-plugins"
 APP = "app_741c52b8-681c-4e8c-8536-9b278e02d671"
-PACKAGE = "@nibomo/nibomo"
+PACKAGE = "@nibomo.executor.community/nibomo"
 HOST = "https://v2.executor.sh"
 SOURCE_PATHS = ["LICENSE", "README.md", "index.ts", "package.json", "provider.ts"]
 
@@ -127,11 +127,20 @@ def publication(value: Json) -> str:
 
 def listing(value: Json) -> dict[str, Json]:
     matches = [record(item) for item in items(value) if record(item)["name"] == PACKAGE]
-    require(len(matches) == 1, "Expected exactly one existing @nibomo/nibomo listing; never create a replacement")
+    require(len(matches) == 1, "Expected exactly one existing @nibomo.executor.community/nibomo listing; never create a replacement")
     return matches[0]
 
 
+def release_version(tag: str) -> str:
+    numeric = r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    match = re.fullmatch(rf"(?:v(?P<coordinated>{numeric})|executor-v(?P<remediation>{numeric})-scope-migration)", tag)
+    if match is None:
+        raise ValueError("release_tag must be vX.Y.Z or executor-vX.Y.Z-scope-migration")
+    return match.group("coordinated") or match.group("remediation")
+
+
 def release_sha(tag: str) -> str:
+    version = release_version(tag)
     release = record(github(f"releases/tags/{tag}"))
     require(release["tag_name"] == tag and release["draft"] is False and release["prerelease"] is False,
             "Only an existing published stable release is allowed")
@@ -146,7 +155,13 @@ def release_sha(tag: str) -> str:
     subprocess.run(["git", "merge-base", "--is-ancestor", sha, "HEAD"], check=True)
     for path in ["plugin.json", ".claude-plugin/plugin.json", "gemini-extension.json"]:
         manifest = record(json.loads(git("show", f"{sha}:{path}")))
-        require(manifest["name"] == "nibomo" and manifest["version"] == tag[1:], f"Release/manifest mismatch: {path}")
+        require(manifest["name"] == "nibomo" and manifest["version"] == version, f"Release/manifest mismatch: {path}")
+    if tag.startswith("executor-"):
+        coordinated_tag = f"v{version}"
+        coordinated_sha = release_sha(coordinated_tag)
+        subprocess.run(["git", "merge-base", "--is-ancestor", coordinated_sha, sha], check=True)
+        latest = record(github("releases/latest"))
+        require(latest["tag_name"] == coordinated_tag, "Executor remediation must preserve the coordinated Latest release")
     return sha
 
 
@@ -197,8 +212,6 @@ def main() -> None:
     else:
         require(environment("GITHUB_REF") == "refs/heads/main", "Run manual retries from main")
         tag = environment("RELEASE_TAG")
-    require(re.fullmatch(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", tag) is not None,
-            "release_tag must be an existing stable vX.Y.Z release")
     sha = release_sha(tag)
     note("GitHub release", f"[{tag}](https://github.com/{REPOSITORY}/releases/tag/{tag}) — {sha}")
     note("Publisher SHA", git("rev-parse", "HEAD").strip())
@@ -214,23 +227,24 @@ def main() -> None:
     app = record(executor(app_path, "GET", None))
     require(app["id"] == APP and app["owner"] == access["owner"] and app["slug"] == "nibomo", "Unexpected owned app identity")
     authoring = record(executor(f"{app_path}/authoring", "GET", None))
-    require(authoring["namespace"] == "nibomo" and authoring["canEdit"] is True and authoring["canPublish"] is True,
+    require(authoring["namespace"] == PACKAGE[1:].split("/")[0] and authoring["canEdit"] is True and authoring["canPublish"] is True,
             "Existing app edit/publish permissions required")
     working = record(executor(f"{app_path}/workspace", "GET", None))
     revision = record(working["revision"])
     working_commit = commit(revision["commit"])
-    require(revision["code"] == app["repository"] and working["namespace"] == "nibomo" and working["canEdit"] is True,
+    require(revision["code"] == app["repository"] and working["namespace"] == PACKAGE[1:].split("/")[0] and working["canEdit"] is True,
             "Unexpected working source identity or permissions")
     current = files(working["files"])
     deployed = record(executor(f"{app_path}/source", "GET", None))
     require(deployed["id"] == app["activeDeployment"] and deployed["code"] == app["code"]
             and deployed["owner"] == access["owner"], "Unexpected active deployment identity")
-    public_path = "/api/registry/apps?name=%40nibomo%2Fnibomo"
+    package_query = urllib.parse.quote(PACKAGE, safe="")
+    public_path = f"/api/registry/apps?name={package_query}"
     published = listing(executor(f"{base}/app-publications/published", "GET", None))
     published_commit = publication(published)
     public = listing(request(f"{HOST}{public_path}", "", "GET", None))
     require(publication(public) == published_commit, "Owned and public listings disagree before publication")
-    snapshot = record(request(f"{HOST}/api/registry/source?name=%40nibomo%2Fnibomo&commit={published_commit}", "", "GET", None))
+    snapshot = record(request(f"{HOST}/api/registry/source?name={package_query}&commit={published_commit}", "", "GET", None))
     require(publication(snapshot["publication"]) == published_commit, "Unexpected public source identity")
     files(snapshot["files"])
     before_accounts = selections(executor(f"{app_path}/profiles", "GET", None))
@@ -285,9 +299,9 @@ def main() -> None:
         note("Public listing", "Propagation pending; accepted publication verified, repeat the manual workflow to recheck")
     else:
         require(publication(listing(visible)) == working_commit, "Immediate public listing commit mismatch; inspect provider state")
-        live = record(request(f"{HOST}/api/registry/source?name=%40nibomo%2Fnibomo&commit={working_commit}", "", "GET", None))
+        live = record(request(f"{HOST}/api/registry/source?name={package_query}&commit={working_commit}", "", "GET", None))
         require(publication(live["publication"]) == working_commit and files(live["files"]) == intended, "Public source mismatch")
-        note("Public listing", "[Verified source](https://v2.executor.sh/apps/nibomo/nibomo)")
+        note("Public listing", "[Verified source](https://executor.sh/apps/nibomo.executor.community/nibomo)")
     note("Outcome", "No update needed" if unchanged and visible else "Operator-complete: deployment and accepted publication verified")
     note("Installed copies", "Remain independent; users must review and install the new source")
 
