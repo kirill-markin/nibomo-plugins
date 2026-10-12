@@ -22,11 +22,14 @@ def main() -> None:
     write_archive(root, destination / f"nibomo-{version}-claude.zip", shared + [root / ".claude-plugin/plugin.json", root / ".mcp.json"])
     openai = destination / f"nibomo-{version}-openai.zip"
     write_archive(root, openai, shared)
-    openai_mcp = copy.deepcopy(json.loads((root / "mcp.json").read_text()))
-    openai_mcp["mcpServers"]["nibomo"]["extensions"] = {"com.openai": {"auth": openai_identity["mcpAuth"]}}
+    openai_mcp_bytes = (root / "mcp.json").read_bytes()
+    if "mcpAuth" in openai_identity:
+        openai_mcp = copy.deepcopy(json.loads(openai_mcp_bytes))
+        openai_mcp["mcpServers"]["nibomo"]["extensions"] = {"com.openai": {"auth": openai_identity["mcpAuth"]}}
+        openai_mcp_bytes = (json.dumps(openai_mcp, indent=2) + "\n").encode()
     with ZipFile(openai, "a", compression=ZIP_DEFLATED) as archive:
         archive.writestr("plugin.json", json.dumps({**portable, "name": openai_identity["name"]}, indent=2) + "\n")
-        archive.writestr("mcp.json", json.dumps(openai_mcp, indent=2) + "\n")
+        archive.writestr("mcp.json", openai_mcp_bytes)
     write_archive(root, destination / f"nibomo-{version}-gemini.zip", shared + [root / "gemini-extension.json"])
     antigravity = destination / f"nibomo-{version}-antigravity.zip"
     write_archive(root, antigravity, shared)
