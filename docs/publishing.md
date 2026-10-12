@@ -8,7 +8,7 @@ The repository root is one Nibomo plugin with a single `skills/` directory. Keep
 
 | Component | Anthropic | OpenAI |
 |---|---|---|
-| Manifest | `.claude-plugin/plugin.json` | Root `plugin.json` with Agent Plugins schema 1.0.0 |
+| Manifest | `.claude-plugin/plugin.json` | Generated root `plugin.json` with Agent Plugins schema 1.0.0 |
 | Remote MCP | `.mcp.json`, type `http` | `mcp.json`, type `streamable-http` |
 | Skills | `skills/<name>/SKILL.md` | Same files; `agents/openai.yaml` declares the MCP dependency |
 | Listing content | Manifest and README | `extensions.com.openai.interface` and assets |
@@ -62,6 +62,10 @@ Follow [Anthropic's update and publication procedure](https://claude.com/docs/pl
 The [privacy policy](https://nibomo.com/privacy/) and [terms](https://nibomo.com/terms/) govern the hosted service. Confirm the live portal's exact acknowledgments before accepting them.
 
 ## OpenAI
+
+The OpenAI archive inherits the complete portable `plugin.json` and overrides only its package `name` from [`openai-package.json`](../openai-package.json). This preserves the existing dashboard package name `app-6ab77a6e971c81918b9e9185a6a19d58`; the portable, Claude, and Gemini source identities stay `nibomo`. Keep listing text within the [documented submission limits](https://developers.openai.com/plugins/deploy/submission#manifest-fields).
+
+For an identity repair after a coordinated release is immutable, merge reviewed source with the shared version unchanged and require successful exact-source main **Plugin packages** and **Executor typecheck**. Create an immutable annotated `openai-vX.Y.Z-identity-migration` tag and stable supplemental GitHub Release at that source, explicitly setting `make_latest=false`; attach only that run's original OpenAI ZIP and retain its digest. Preserve the coordinated tag/assets, Executor remediation source, and Gemini Latest. Upload this source-mapped ZIP to the existing plugin; never patch a downloaded archive by hand. Executor publication ignores this OpenAI-only Release.
 
 OpenAI is an established release channel. Update plugin `asdk_app_6ab77a6e971c81918b9e9185a6a19d58`, with its [public listing](https://chatgpt.com/plugins/plugin_asdk_app_6ab77a6e971c81918b9e9185a6a19d58), using [OpenAI's submission and update procedure](https://developers.openai.com/plugins/deploy/submission).
 

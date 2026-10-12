@@ -35,12 +35,20 @@ jobs:
           import yaml
 
           root = Path('.')
+          schemas = {}
           for filename in ['plugin.json', 'mcp.json']:
               data = json.loads((root / filename).read_text())
               with urllib.request.urlopen(data['$schema'], timeout=30) as response:
                   schema = json.load(response)
+              schemas[filename] = schema
               jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(data)
           portable = json.loads((root / 'plugin.json').read_text())
+          openai_identity = json.loads((root / 'openai-package.json').read_text())
+          assert set(openai_identity) == {'name'}, 'OpenAI identity may override only the package name'
+          jsonschema.Draft202012Validator(schemas['plugin.json'], format_checker=jsonschema.FormatChecker()).validate({**portable, **openai_identity})
+          interface = portable['extensions']['com.openai']['interface']
+          for field, maximum in [('displayName', 30), ('shortDescription', 30), ('longDescription', 4000), ('developerName', 80)]:
+              assert isinstance(interface[field], str) and 0 < len(interface[field]) <= maximum, f'OpenAI submission limit exceeded: {field}'
           registry = json.loads((root / 'server.json').read_text())
           assert registry['version'] == portable['version'], 'MCP Registry manifest disagrees on version'
           claude = json.loads((root / '.claude-plugin/plugin.json').read_text())
@@ -66,7 +74,7 @@ jobs:
           PY
       - name: Build all installable archives
         run: python scripts/package_plugins.py
-      - name: Verify archive contents and Antigravity contract
+      - name: Verify archive contents and generated manifests
         run: |
           python - <<'PY'
           import json
@@ -93,7 +101,11 @@ jobs:
                   assert set(archive.namelist()) == expected and len(archive.namelist()) == len(expected), f'Wrong contents in {platform} archive'
                   for path in shared:
                       assert archive.read(str(path)) == path.read_bytes(), f'Changed shared file in {platform}: {path}'
-                  if platform != 'antigravity':
+                  if platform == 'openai':
+                      identity = json.loads((root / 'openai-package.json').read_text())
+                      assert json.loads(archive.read('plugin.json')) == {**portable, 'name': identity['name']}, 'OpenAI archive changed more than its assigned package identity'
+                      assert archive.read('mcp.json') == Path('mcp.json').read_bytes(), 'Changed OpenAI MCP configuration'
+                  elif platform != 'antigravity':
                       for filename in manifests:
                           assert archive.read(filename) == Path(filename).read_bytes(), f'Changed manifest in {platform}: {filename}'
                   else:

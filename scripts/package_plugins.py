@@ -12,13 +12,17 @@ def write_archive(root: Path, destination: Path, files: list[Path]) -> None:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     portable = json.loads((root / "plugin.json").read_text())
+    openai_identity = json.loads((root / "openai-package.json").read_text())
     version = portable["version"]
     destination = root / "dist"
     destination.mkdir(exist_ok=True)
     shared = [root / "README.md", root / "LICENSE"]
     shared += [path for folder in ["skills", "assets", "references"] for path in (root / folder).rglob("*") if path.is_file()]
     write_archive(root, destination / f"nibomo-{version}-claude.zip", shared + [root / ".claude-plugin/plugin.json", root / ".mcp.json"])
-    write_archive(root, destination / f"nibomo-{version}-openai.zip", shared + [root / "plugin.json", root / "mcp.json"])
+    openai = destination / f"nibomo-{version}-openai.zip"
+    write_archive(root, openai, shared + [root / "mcp.json"])
+    with ZipFile(openai, "a", compression=ZIP_DEFLATED) as archive:
+        archive.writestr("plugin.json", json.dumps({**portable, "name": openai_identity["name"]}, indent=2) + "\n")
     write_archive(root, destination / f"nibomo-{version}-gemini.zip", shared + [root / "gemini-extension.json"])
     antigravity = destination / f"nibomo-{version}-antigravity.zip"
     write_archive(root, antigravity, shared)
