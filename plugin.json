@@ -30,7 +30,7 @@
         "shortDescription": "Create and study flashcards",
         "longDescription": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included.",
         "developerName": "SAMO DANNI EOOD",
-        "category": "Productivity",
+        "category": "Education & Research",
         "capabilities": [
           "Create flashcards",
           "Study due cards",

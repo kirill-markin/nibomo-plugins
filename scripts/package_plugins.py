@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -20,9 +21,12 @@ def main() -> None:
     shared += [path for folder in ["skills", "assets", "references"] for path in (root / folder).rglob("*") if path.is_file()]
     write_archive(root, destination / f"nibomo-{version}-claude.zip", shared + [root / ".claude-plugin/plugin.json", root / ".mcp.json"])
     openai = destination / f"nibomo-{version}-openai.zip"
-    write_archive(root, openai, shared + [root / "mcp.json"])
+    write_archive(root, openai, shared)
+    openai_mcp = copy.deepcopy(json.loads((root / "mcp.json").read_text()))
+    openai_mcp["mcpServers"]["nibomo"]["extensions"] = {"com.openai": {"auth": openai_identity["mcpAuth"]}}
     with ZipFile(openai, "a", compression=ZIP_DEFLATED) as archive:
         archive.writestr("plugin.json", json.dumps({**portable, "name": openai_identity["name"]}, indent=2) + "\n")
+        archive.writestr("mcp.json", json.dumps(openai_mcp, indent=2) + "\n")
     write_archive(root, destination / f"nibomo-{version}-gemini.zip", shared + [root / "gemini-extension.json"])
     antigravity = destination / f"nibomo-{version}-antigravity.zip"
     write_archive(root, antigravity, shared)
