@@ -1,5 +1,5 @@
 {
-  "name": "@nibomo/nibomo",
+  "name": "@nibomo.executor.community/nibomo",
   "description": "Connect Nibomo flashcards through MCP at https://mcp.nibomo.com/mcp. Requires your own Nibomo account and OAuth authorization. Website: https://nibomo.com",
   "type": "module",
   "homepage": "https://nibomo.com",

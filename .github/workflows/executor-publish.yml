@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing stable GitHub release tag (vX.Y.Z)
+        description: Existing stable release tag (vX.Y.Z or executor-vX.Y.Z-scope-migration)
         required: true
         type: string
 
