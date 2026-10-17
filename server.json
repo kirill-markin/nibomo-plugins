@@ -3,7 +3,7 @@
   "name": "com.nibomo/flashcards",
   "title": "Nibomo Flashcards",
   "description": "Read, write, and conversationally review open-source flashcards through split read/write MCP tools.",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "websiteUrl": "https://nibomo.com",
   "icons": [
     {
