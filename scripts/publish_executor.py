@@ -182,21 +182,26 @@ def cloud_run(sha: str) -> str:
     return string(run["html_url"])
 
 
-def selections(value: Json) -> dict[str, dict[str, Json]]:
-    result: dict[str, dict[str, Json]] = {}
-    for value in items(value):
-        profile = record(value)
-        require(profile["app"] == APP, "Unexpected profile app identity")
-        accounts = record(profile["accounts"])
-        for account in accounts.values():
-            if isinstance(account, list):
-                for identifier in account:
-                    string(identifier)
-            else:
-                string(account)
-        identifier = string(profile["id"])
-        require(identifier not in result, "Duplicate profile identity")
-        result[identifier] = accounts
+def account_selections(path: str) -> dict[str, list[str]]:
+    value = executor(path, "GET", None)
+    if not isinstance(value, list):
+        raise ValueError(f"{path}: expected an account-link array")
+    result: dict[str, list[str]] = {}
+    for link in value:
+        if not isinstance(link, dict):
+            raise ValueError(f"{path}: expected an account-link object")
+        requirement = link.get("requirement")
+        if not isinstance(requirement, str) or not requirement:
+            raise ValueError(f"{path}: expected a nonempty account requirement")
+        account = link.get("account")
+        if not isinstance(account, dict):
+            raise ValueError(f"{path}: expected a linked account object")
+        identifier = account.get("id")
+        if not isinstance(identifier, str) or not identifier.startswith("acc_"):
+            raise ValueError(f"{path}: expected a linked account.id with the acc_ prefix")
+        accounts = result.setdefault(requirement, [])
+        require(identifier not in accounts, f"{path}: duplicate requirement/account pair")
+        accounts.append(identifier)
     return result
 
 
@@ -247,7 +252,8 @@ def main() -> None:
     snapshot = record(request(f"{HOST}/api/registry/source?name={package_query}&commit={published_commit}", "", "GET", None))
     require(publication(snapshot["publication"]) == published_commit, "Unexpected public source identity")
     files(snapshot["files"])
-    before_accounts = selections(executor(f"{app_path}/profiles", "GET", None))
+    before_app_accounts = account_selections(f"{app_path}/accounts/app")
+    before_user_accounts = account_selections(f"{app_path}/accounts/user")
     if current != intended:
         require(working_commit == deployed["sourceCommit"] == published_commit
                 and current == files(deployed["files"]) == files(snapshot["files"]),
@@ -284,7 +290,10 @@ def main() -> None:
     verified = record(executor(f"{app_path}/source", "GET", None))
     require(active["activeDeployment"] == deployed["id"] == verified["id"] and verified["sourceCommit"] == working_commit
             and verified["owner"] == access["owner"] and files(verified["files"]) == intended, "Active deployment verification failed")
-    require(selections(executor(f"{app_path}/profiles", "GET", None)) == before_accounts, "Account selections changed; inspect before publication")
+    require(account_selections(f"{app_path}/accounts/app") == before_app_accounts,
+            "App account selections changed; inspect before publication")
+    require(account_selections(f"{app_path}/accounts/user") == before_user_accounts,
+            "Publisher user account selections changed; inspect before publication")
     latest_working = record(executor(f"{app_path}/workspace", "GET", None))
     require(record(latest_working["revision"])["commit"] == working_commit and files(latest_working["files"]) == intended,
             "Working source changed during deployment; reconcile before publication")
