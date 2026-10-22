@@ -24,7 +24,7 @@ The separate [Nibomo app for Executor](https://executor.sh/apps/nibomo.executor.
 - **Study due cards:** “Quiz me on due cards in my SQL deck, one question at a time. My timezone is Europe/Madrid.” The assistant waits for your attempt, reveals the reference, explains its assessment, and saves the review. You can request manual ratings or stop at any time.
 - **Improve flashcards:** “Audit my networking cards for ambiguous prompts and duplicates. Show suggested changes before editing.” You can also request tag cleanup and saved deck organization.
 
-The plugin reads live Nibomo guides for current authoring and review rules. It does not provide image generation or an interactive MCP App UI.
+The skills use bundled authoring and review references on top of the Nibomo connector's own guidance. The plugin does not provide image generation or an interactive MCP App UI.
 
 ## Data and privacy
 
