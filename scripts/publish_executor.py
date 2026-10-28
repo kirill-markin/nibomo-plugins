@@ -125,9 +125,13 @@ def publication(value: Json) -> str:
     return commit(data["commit"])
 
 
-def listing(value: Json) -> dict[str, Json]:
-    matches = [record(item) for item in items(value) if record(item)["name"] == PACKAGE]
-    require(len(matches) == 1, "Expected exactly one existing @nibomo.executor.community/nibomo listing; never create a replacement")
+def listing(value: Json, endpoint: str) -> dict[str, Json]:
+    publications = [record(item) for item in items(value)]
+    matches = [item for item in publications if item["name"] == PACKAGE]
+    identities = [{"name": item.get("name"), "commit": item.get("commit")} for item in publications]
+    require(len(matches) == 1,
+            f"GET {endpoint}: expected exactly one existing {PACKAGE} listing; matched={len(matches)}; "
+            f"published identities={json.dumps(identities)}. Reconcile the existing publication; never create a replacement")
     return matches[0]
 
 
@@ -245,9 +249,10 @@ def main() -> None:
             and deployed["owner"] == access["owner"], "Unexpected active deployment identity")
     package_query = urllib.parse.quote(PACKAGE, safe="")
     public_path = f"/api/registry/apps?name={package_query}"
-    published = listing(executor(f"{base}/app-publications/published", "GET", None))
+    published_path = f"{base}/app-publications/published"
+    published = listing(executor(published_path, "GET", None), published_path)
     published_commit = publication(published)
-    public = listing(request(f"{HOST}{public_path}", "", "GET", None))
+    public = listing(request(f"{HOST}{public_path}", "", "GET", None), public_path)
     require(publication(public) == published_commit, "Owned and public listings disagree before publication")
     snapshot = record(request(f"{HOST}/api/registry/source?name={package_query}&commit={published_commit}", "", "GET", None))
     require(publication(snapshot["publication"]) == published_commit, "Unexpected public source identity")
@@ -301,13 +306,13 @@ def main() -> None:
         accepted = executor(f"{app_path}/publication", "POST", {"commit": working_commit})
         require(publication(accepted) == working_commit, "Accepted publication identity mismatch")
         note("Publication accepted", f"{PACKAGE} — {working_commit}")
-    owned = listing(executor(f"{base}/app-publications/published", "GET", None))
+    owned = listing(executor(published_path, "GET", None), published_path)
     require(publication(owned) == working_commit, "Publication readback mismatch")
     visible = items(request(f"{HOST}{public_path}", "", "GET", None))
     if not visible:
         note("Public listing", "Propagation pending; accepted publication verified, repeat the manual workflow to recheck")
     else:
-        require(publication(listing(visible)) == working_commit, "Immediate public listing commit mismatch; inspect provider state")
+        require(publication(listing(visible, public_path)) == working_commit, "Immediate public listing commit mismatch; inspect provider state")
         live = record(request(f"{HOST}/api/registry/source?name={package_query}&commit={working_commit}", "", "GET", None))
         require(publication(live["publication"]) == working_commit and files(live["files"]) == intended, "Public source mismatch")
         note("Public listing", "[Verified source](https://executor.sh/apps/nibomo.executor.community/nibomo)")
