@@ -63,6 +63,8 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def request(url: str, token: str, method: str, body: Json) -> Json:
     headers = {"Accept": "application/json", "User-Agent": "nibomo-executor-publisher"}
+    if url.startswith(f"{HOST}/"):
+        headers["executor-wire-revision"] = "1"
     if token:
         headers["Authorization"] = f"Bearer {token}"
     payload = None if body is None else json.dumps(body).encode()
