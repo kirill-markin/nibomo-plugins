@@ -6,7 +6,6 @@ on:
       - 'server.json'
       - 'scripts/validate_mcp_registry.py'
       - 'requirements-ci.txt'
-      - '.github/workflows/mcp-registry-publish.yml'
       - '.github/workflows/mcp-registry-validate.yml'
   push:
     branches: [main]
@@ -14,7 +13,6 @@ on:
       - 'server.json'
       - 'scripts/validate_mcp_registry.py'
       - 'requirements-ci.txt'
-      - '.github/workflows/mcp-registry-publish.yml'
       - '.github/workflows/mcp-registry-validate.yml'
 
 permissions:
