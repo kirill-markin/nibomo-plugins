@@ -12,9 +12,7 @@ The app uses Executor's native OAuth discovery, credential handling, per-account
 
 ## Update the published app
 
-The **Executor Publish** GitHub Actions workflow updates the existing owned app behind `@nibomo.executor.community/nibomo` when a stable companion GitHub Release is published. A main push does not publish. Manual retries select an existing release; the publisher reads its exact immutable Git commit and requires both **Plugin packages** jobs to pass for that source.
-
-Follow [Executor publication](../docs/publishing.md#executor) for the one-time secret setup, release/retry command, drift handling, and evidence to retain. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) owns authorization and release sequencing. Executor framework and MCP SDK dependency versions are not a Nibomo release version. Existing installed copies remain independent and require a separately reviewed installation.
+See [Executor publication](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/plugin-publishing.md#executor) for the core-owned publishing workflow and operator procedures. The [app release runbook](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/release/README.md) owns authorization and release sequencing. Executor framework and MCP SDK dependency versions are not a Nibomo release version.
 
 ## Links
 
