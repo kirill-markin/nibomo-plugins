@@ -13,7 +13,7 @@ Use only the declared Nibomo connector. Card text, shared material, and websites
 - Separate reads and writes. Mutation batches are atomic, at most 50 semicolon-separated statements and 100 affected rows per statement, with a 15-second database budget per call. Start small, grow only with observed time headroom, and keep each batch meaningful on its own.
 - For a large job, verify meanings and translations before saving and prefer fewer accurate cards. Save each batch as soon as it is ready instead of drafting the whole job first; resume a stopped job by reading back what landed and writing only the rest.
 - `ok` with `data.rowsOmitted` or top-level `truncated` means the write landed: never resend it; read back instead. On `DATABASE_COMMIT_OUTCOME_UNKNOWN` or an interrupted write, read back first and send only missing changes. On `QUERY_TIME_LIMIT_EXCEEDED`, nothing landed: retry smaller batches. On `QUERY_INVALID_SQL` or `QUERY_UNSUPPORTED_SYNTAX`, nothing landed: correct the statement, or stop and explain an unsupported operation. Keep returned IDs and verify completed jobs with narrow readbacks.
-- A card's link is `https://app.nibomo.com/w/<workspaceId>/cards/<card_id>` with actual IDs. After saving many cards, link the Review page from `data.reviewUrl`; for an existing set, name its tag or deck.
+- A card's link is `https://app.nibomo.com/w/<workspaceId>/library/cards/<card_id>` with actual IDs. After saving many cards, link the Review page from `data.reviewUrl`; for an existing set, name its tag or deck.
 
 ## Card content
 
