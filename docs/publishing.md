@@ -14,4 +14,4 @@ Use the core guide:
 - <a id="public-listings"></a>[Public listings](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/plugin-publishing.md#public-listings)
 - <a id="real-workflow-verification"></a>[Real workflow verification](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/docs/plugin-publishing.md#real-workflow-verification)
 
-Consumer installation and account connection instructions remain in the [plugin README](../README.md#get-started) and [Executor README](../executor/README.md#install-and-connect).
+Consumer installation and account connection instructions remain in the [plugin README](../README.md#get-started) and [Executor README](https://github.com/kirill-markin/flashcards-open-source-app/blob/main/apps/executor/README.md#install-and-connect).
