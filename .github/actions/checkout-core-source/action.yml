@@ -1,0 +1,38 @@
+name: Check out validated core source
+description: Resolve the companion pin with the Executor publisher's validator before checking it out.
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v7
+      with:
+        repository: kirill-markin/flashcards-open-source-app
+        ref: refs/heads/main
+        fetch-depth: 0
+        path: core
+        sparse-checkout: |
+          apps/executor
+          scripts/plugins
+        persist-credentials: false
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Validate and check out the core pin
+      shell: bash
+      working-directory: ${{ github.workspace }}/core
+      run: |
+        set -euo pipefail
+        core_sha=$(PYTHONPATH="$PWD/scripts/plugins" python -BP - <<'PY'
+        import os
+        from pathlib import Path
+
+        from publish_executor import CORE_PIN, git, require, selected_executor_source
+
+        companion = Path(os.environ["GITHUB_WORKSPACE"]) / "companion"
+        companion_sha = git(companion, "rev-parse", "HEAD").strip()
+        require(bool(git(companion, "ls-tree", companion_sha, "--", CORE_PIN)), f"{CORE_PIN} is required in CI")
+        print(selected_executor_source(companion, companion_sha).sha)
+        PY
+        )
+        git checkout --detach "$core_sha"
