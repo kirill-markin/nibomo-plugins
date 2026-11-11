@@ -18,7 +18,7 @@ jobs:
         with:
           path: companion
           persist-credentials: false
-      - uses: ./companion/.github/actions/checkout-core-source
+      - uses: kirill-markin/flashcards-open-source-app/.github/actions/checkout-core-source@408ff05aeba23e299d05a0acd307e6c77b6693b6
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -229,7 +229,7 @@ jobs:
         with:
           path: companion
           persist-credentials: false
-      - uses: ./companion/.github/actions/checkout-core-source
+      - uses: kirill-markin/flashcards-open-source-app/.github/actions/checkout-core-source@408ff05aeba23e299d05a0acd307e6c77b6693b6
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
