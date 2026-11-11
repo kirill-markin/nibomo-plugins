@@ -10,8 +10,31 @@ permissions:
 jobs:
   packages:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: companion
     steps:
       - uses: actions/checkout@v5
+        with:
+          path: companion
+          persist-credentials: false
+      - name: Read and validate core source pin
+        id: core-source
+        run: |
+          jq -ers '
+            if length == 1 and (.[0] | type == "object" and keys == ["commit"])
+              and (.[0].commit | type == "string" and length == 40 and test("^[0-9a-f]+$"))
+            then "commit=" + .[0].commit
+            else error("core-source.json must contain exactly one full lowercase Git SHA in commit")
+            end
+          ' core-source.json >> "$GITHUB_OUTPUT"
+      - name: Check out pinned core source
+        uses: actions/checkout@v5
+        with:
+          repository: kirill-markin/flashcards-open-source-app
+          ref: ${{ steps.core-source.outputs.commit }}
+          path: core
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -21,7 +44,7 @@ jobs:
       - name: Validate Claude plugin
         run: npx --yes @anthropic-ai/claude-code@2.1.288 plugin validate .
       - name: Install schema validation dependencies
-        run: python -m pip install -r requirements-ci.txt
+        run: python -m pip install -r ../core/scripts/plugins/requirements-ci.txt
       - name: Validate portable schemas and shared wiring
         run: |
           python - <<'PY'
@@ -71,7 +94,7 @@ jobs:
           print('Portable schemas, manifest identities including Gemini, MCP Registry version, and shared MCP wiring passed.')
           PY
       - name: Build all installable archives
-        run: python scripts/package_plugins.py
+        run: python ../core/scripts/plugins/package_plugins.py .
       - name: Validate OpenAI MCP configuration and optional vendor OAuth metadata
         run: |
           python - <<'PY'
@@ -211,7 +234,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: nibomo-plugin-packages
-          path: dist/*.zip
+          path: companion/dist/*.zip
           if-no-files-found: error
 
   executor:
@@ -219,9 +242,30 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: executor
+        working-directory: core/apps/executor
     steps:
       - uses: actions/checkout@v5
+        with:
+          path: companion
+          persist-credentials: false
+      - name: Read and validate core source pin
+        id: core-source
+        working-directory: companion
+        run: |
+          jq -ers '
+            if length == 1 and (.[0] | type == "object" and keys == ["commit"])
+              and (.[0].commit | type == "string" and length == 40 and test("^[0-9a-f]+$"))
+            then "commit=" + .[0].commit
+            else error("core-source.json must contain exactly one full lowercase Git SHA in commit")
+            end
+          ' core-source.json >> "$GITHUB_OUTPUT"
+      - name: Check out pinned core source
+        uses: actions/checkout@v5
+        with:
+          repository: kirill-markin/flashcards-open-source-app
+          ref: ${{ steps.core-source.outputs.commit }}
+          path: core
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
