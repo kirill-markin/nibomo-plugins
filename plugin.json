@@ -48,6 +48,42 @@
         "brandColor": "#FF6719",
         "composerIcon": "./assets/icon.png",
         "logo": "./assets/icon.png"
+      },
+      "publication": {
+        "translations": {
+          "zh-Hant": {
+            "subtitle": "建立與複習記憶卡片",
+            "description": "把筆記做成清楚易懂的記憶卡片，逐題複習到期卡片，並改進現有卡片與已儲存的牌組。這款外掛程式會透過 OAuth 連結你的 Nibomo 帳號，並在你有權存取的工作區中儲存你要求建立的卡片和你確認的複習進度。你可以在 Nibomo 網頁版、iOS 或 Android 應用程式繼續學習。需要 Nibomo 帳號和有效的 MCP 連線。這款外掛程式不包含圖片生成功能或互動式 MCP App 介面。"
+          },
+          "en-AU": {
+            "subtitle": "Create and study flashcards",
+            "description": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included."
+          },
+          "en-CA": {
+            "subtitle": "Create and study flashcards",
+            "description": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included."
+          },
+          "en-GB": {
+            "subtitle": "Create and study flashcards",
+            "description": "Turn notes into clear flashcards, study due cards one question at a time, and improve existing cards and saved decks. The plugin connects to your Nibomo account through OAuth and saves requested cards and confirmed review progress to workspaces you can access. Continue learning in the Nibomo web, iOS, or Android app. Requires a Nibomo account and an active MCP connection. No image generation or interactive MCP App UI is included."
+          },
+          "fr-CA": {
+            "subtitle": "Créez et révisez des fiches",
+            "description": "Transformez vos notes en fiches d’étude claires. Étudiez les fiches à revoir, une question à la fois, et améliorez vos fiches existantes et vos paquets enregistrés. L’extension se connecte à votre compte Nibomo par OAuth. Dans les espaces de travail auxquels vous avez accès, elle enregistre les fiches dont vous demandez la création. Elle y consigne aussi votre progression lorsque vous confirmez une révision. Poursuivez votre apprentissage dans Nibomo sur le Web, sur iOS ou sur Android. Un compte Nibomo et une connexion MCP active sont nécessaires. L’extension ne comprend ni génération d’images ni interface MCP App interactive."
+          },
+          "pt-PT": {
+            "subtitle": "Crie e reveja cartões",
+            "description": "Transforme as suas notas em cartões de estudo claros, reveja os cartões com revisão pendente, uma pergunta de cada vez, e melhore os cartões existentes e os baralhos guardados. O plugin liga-se à sua conta Nibomo através de OAuth e guarda os cartões que solicitar e o progresso de revisão que confirmar nos espaços de trabalho a que tem acesso. Continue a estudar na versão web ou na aplicação Nibomo para iOS ou Android. É necessário ter uma conta Nibomo e uma ligação MCP ativa. O plugin não inclui geração de imagens nem uma interface interativa MCP App."
+          },
+          "ms": {
+            "subtitle": "Cipta dan ulang kaji kad imbas",
+            "description": "Tukar nota anda kepada kad imbas yang jelas. Untuk kad yang perlu diulang kaji, jawab satu soalan pada satu masa. Anda juga boleh menambah baik kad sedia ada dan dek yang disimpan. Pemalam ini menyambung ke akaun Nibomo anda melalui OAuth dan menyimpan kad yang anda minta serta kemajuan ulang kaji yang anda sahkan dalam ruang kerja yang boleh anda akses. Teruskan belajar melalui versi web Nibomo atau aplikasi Nibomo untuk iOS atau Android. Anda memerlukan akaun Nibomo dan sambungan MCP yang aktif. Pemalam ini tidak menyertakan penjanaan imej atau antara muka MCP App interaktif."
+          },
+          "or": {
+            "subtitle": "ଫ୍ଲାଶକାର୍ଡ ବନାନ୍ତୁ ଓ ପଢ଼ନ୍ତୁ",
+            "description": "ନୋଟ୍‌ରୁ ସ୍ପଷ୍ଟ ଫ୍ଲାଶକାର୍ଡ ତିଆରି କରନ୍ତୁ। ଯେଉଁ କାର୍ଡଗୁଡ଼ିକର ପୁନରାବୃତ୍ତି ସମୟ ହୋଇଛି, ସେଗୁଡ଼ିକୁ ଗୋଟିଏ ଥରରେ ଗୋଟିଏ ପ୍ରଶ୍ନର ଉତ୍ତର ଦେଇ ଅଭ୍ୟାସ କରନ୍ତୁ। ଆଗରୁ ଥିବା କାର୍ଡ ଓ ସଞ୍ଚିତ କାର୍ଡ ସେଟ୍‌ଗୁଡ଼ିକୁ ଉନ୍ନତ କରନ୍ତୁ। ପ୍ଲଗଇନ୍‌ଟି OAuth ମାଧ୍ୟମରେ ଆପଣଙ୍କ Nibomo ଆକାଉଣ୍ଟ ସହ ଯୋଡ଼ି ହୁଏ। ଆପଣଙ୍କର ପ୍ରବେଶ ଅଧିକାର ଥିବା କାର୍ଯ୍ୟକ୍ଷେତ୍ରରେ ଏହା ଆପଣ ଅନୁରୋଧ କରିଥିବା କାର୍ଡ ଓ ନିଶ୍ଚିତ କରିଥିବା ଅଭ୍ୟାସର ଅଗ୍ରଗତି ସଞ୍ଚୟ କରେ। ୱେବ୍, iOS କିମ୍ବା Androidରେ Nibomo ଆପ୍‌ରେ ପଢ଼ା ଜାରି ରଖନ୍ତୁ। ଏଥିପାଇଁ Nibomo ଆକାଉଣ୍ଟ ଓ ସକ୍ରିୟ MCP ସଂଯୋଗ ଆବଶ୍ୟକ। ଏଥିରେ ଛବି ତିଆରି ସୁବିଧା କିମ୍ବା ଇଣ୍ଟରାକ୍ଟିଭ୍ MCP App ଇଣ୍ଟରଫେସ୍ ନାହିଁ।"
+          }
+        }
       }
     }
   }
